@@ -142,18 +142,13 @@
             return (
                 <div className="flex overflow-x-auto pb-4 gap-3 snap-x w-full hide-scroll pl-1">
                     {json.contents.map((bubble, i) => {
-                        const layerBox = bubble.body?.contents?.find(c => c.position === 'absolute' && c.contents?.length > 0);
-                        // Check for background color in the first content box (based on the provided JSON structure)
-                        const bgBox = bubble.body?.contents?.[0];
-                        const bgColor = bgBox?.backgroundColor || '#ffffff';
-                        const images = layerBox ? layerBox.contents : [];
-                        
                         return (
-                            <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative group cursor-pointer" style={{width: '240px', height: '320px', backgroundColor: bgColor}}>
-                                <div className="relative w-full h-full group-hover:brightness-[1.02] transition">
-                                    {images.map((img, idx) => (
-                                        <img key={idx} src={img.url} className="absolute left-0 right-0 mx-auto object-contain pointer-events-none" style={{ width: img.size || '100%', top: idx === 0 ? '20px' : idx === 1 ? '60px' : 'auto', bottom: idx === 2 ? '0' : 'auto', zIndex: idx }} />
-                                    ))}
+                            <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '300px', aspectRatio: '3/3.2'}}>
+                                {bubble.hero && (
+                                    <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+
                                 </div>
                             </div>
                         )
@@ -600,75 +595,75 @@
       "type": "bubble",
       "hero": {
         "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_001.jpg",
-        "size": "full",
-        "aspectMode": "fit",
-        "aspectRatio": "3:3.2"
-      },
-      "action": {
-        "type": "uri",
-        "label": "ซื้อลอตเตอรี่ที่นี่",
-        "uri": "https://lin.ee/oV69qGV"
-      }
-    },
-    {
-      "type": "bubble",
-      "hero": {
-        "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_002.jpg",
+        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_01.jpg",
         "size": "full",
         "aspectMode": "cover",
-        "aspectRatio": "3:3.2"
-      },
-      "action": {
-        "type": "uri",
-        "label": "ซื้อลอตเตอรี่ที่นี่",
-        "uri": "https://lin.ee/IcgKyUm"
+        "aspectRatio": "3:3.2",
+        "action": {
+          "type": "uri",
+          "label": "ซื้อลอตเตอรี่ที่นี่",
+          "uri": "https://lin.ee/oV69qGV"
+        }
       }
     },
     {
       "type": "bubble",
       "hero": {
         "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_003.jpg",
-        "aspectRatio": "3:3.2",
+        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_02.jpg",
+        "size": "full",
         "aspectMode": "cover",
-        "size": "full"
-      },
-      "action": {
-        "type": "uri",
-        "label": "ซื้อลอตเตอรี่ที่นี่",
-        "uri": "https://lin.ee/pwTuVaa"
+        "aspectRatio": "3:3.2",
+        "action": {
+          "type": "uri",
+          "label": "ซื้อลอตเตอรี่ที่นี่",
+          "uri": "https://lin.ee/IcgKyUm"
+        }
       }
     },
     {
       "type": "bubble",
       "hero": {
         "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_005.jpg",
+        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_03.jpg",
         "aspectRatio": "3:3.2",
         "aspectMode": "cover",
-        "size": "full"
-      },
-      "action": {
-        "type": "uri",
-        "label": "ซื้อลอตเตอรี่ที่นี่",
-        "uri": "https://lin.ee/Nxyg8FL"
+        "size": "full",
+        "action": {
+          "type": "uri",
+          "label": "ซื้อลอตเตอรี่ที่นี่",
+          "uri": "https://lin.ee/pwTuVaa"
+        }
       }
     },
     {
       "type": "bubble",
       "hero": {
         "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_010.jpg",
+        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_05.jpg",
         "aspectRatio": "3:3.2",
         "aspectMode": "cover",
-        "size": "full"
-      },
-      "action": {
-        "type": "uri",
-        "label": "ซื้อลอตเตอรี่ที่นี่",
-        "uri": "https://lin.ee/SeDO4Ud"
+        "size": "full",
+        "action": {
+          "type": "uri",
+          "label": "ซื้อลอตเตอรี่ที่นี่",
+          "uri": "https://lin.ee/Nxyg8FL"
+        }
+      }
+    },
+    {
+      "type": "bubble",
+      "hero": {
+        "type": "image",
+        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_10.jpg",
+        "aspectRatio": "3:3.2",
+        "aspectMode": "cover",
+        "size": "full",
+        "action": {
+          "type": "uri",
+          "label": "ซื้อลอตเตอรี่ที่นี่",
+          "uri": "https://lin.ee/SeDO4Ud"
+        }
       }
     }
   ]
