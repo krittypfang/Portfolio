@@ -104,8 +104,13 @@
                 : '16/9';
             
             return (
-                <div className="bg-white w-full flex flex-col border border-slate-200 shadow-sm mx-auto overflow-hidden rounded-md">
-                    {json.header?.contents?.[0]?.url && <img src={json.header.contents[0].url} className="w-full object-contain" style={{aspectRatio: headerRatio}} />}
+                <div className="bg-white w-full  h-[500px] flex flex-col border border-slate-200 shadow-sm mx-auto overflow-hidden rounded-md">
+{/* Header: ให้ความสูงปรับตามรูปภาพแต่ไม่ให้หด (flex-shrink-0) */}
+                    {json.header?.contents?.[0]?.url && (
+                        <div className=" w-full h-[20] bg-slate-50 relative">
+                             <img src={json.header.contents[0].url} className="w-full object-contain block" style={{aspectRatio: 20/3}} />
+                        </div>
+                    )}
 {/* Hero (Video Section) */}
                     {json.hero && (
                         <div className="relative w-full bg-black">
@@ -132,7 +137,7 @@
                     <div className="flex flex-col">
                         {items.map((item, i) => (
                             <div key={i} className="flex items-center p-4 gap-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors cursor-pointer group">
-                                <div className="w-[70px] h-[70px] flex-shrink-0 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:border-green-200 transition-colors overflow-hidden">
+                                <div className="w-[70px] h-[60px] flex-shrink-0 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:border-green-200 transition-colors overflow-hidden">
                                     <img src={item.img} className="w-full h-full object-contain" />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -439,11 +444,18 @@ const Type3CarouselRenderer = ({ json }) => {
                     </button>
                 </div>
             );
-        }
+        };
+        
+        
         
 
         const Type4StepRenderer = ({ json }) => {
             if (!json) return null;
+
+            // Helper สำหรับหา Aspect Ratio ของ Header Image (เหมือน Type 1)
+            const headerRatio = json.header?.contents?.[0]?.aspectRatio 
+                ? json.header.contents[0].aspectRatio.replace(':', '/') 
+                : 'auto';
 
             const renderNode = (node, index) => {
                 if (!node) return null;
@@ -567,65 +579,71 @@ const Type3CarouselRenderer = ({ json }) => {
                 return null;
             };
 
+            // กำหนด Style พื้นหลัง Header (Gradient)
             const headerStyle = {};
             if (json.header?.background?.type === 'linearGradient') {
                 headerStyle.background = `linear-gradient(${json.header.background.angle}, ${json.header.background.startColor}, ${json.header.background.endColor})`;
             } else if (json.header?.backgroundColor) {
                 headerStyle.backgroundColor = json.header.backgroundColor;
             }
-            if (json.header) {
-                if (json.header.height) headerStyle.height = json.header.height;
-                if (json.header.paddingAll) headerStyle.padding = json.header.paddingAll;
-                if (json.header.paddingTop) headerStyle.paddingTop = json.header.paddingTop;
-                if (json.header.paddingBottom) headerStyle.paddingBottom = json.header.paddingBottom;
-            }
+            
+            // [UPDATED] ไม่ดึง Padding/Height จาก JSON แล้ว เพื่อบังคับจัด Layout เองให้เหมือน Type 1
+            headerStyle.padding = 0; // Reset padding เป็น 0
+            headerStyle.height = 'auto'; // ให้สูงตามรูปภาพ
 
             return (
-                <div className="bg-white w-full border border-slate-200 shadow-sm rounded-md overflow-hidden flex flex-col">
-                    {/* Header */}
+                <div className="bg-white w-full h-[500px] border border-slate-200 shadow-sm rounded-md overflow-hidden flex flex-col">
+                    {/* Header: ปรับให้เหมือน Type 1 คือรูปเต็มพื้นที่ (แต่มี BG Gradient รองหลัง) */}
                     {json.header && (
-                        <div style={headerStyle} className="flex flex-col justify-center items-center relative">
-                            {json.header.contents.map((c, i) => renderNode(c, i))}
+                        <div style={headerStyle} className="flex flex-col justify-center items-center relative flex-shrink-0 w-full">
+                            {json.header.contents.map((c, i) => {
+                                // ถ้าเป็นรูปภาพ ให้บังคับ Aspect Ratio และความกว้างเต็ม
+                                if (c.type === 'image') {
+                                    return <img key={i} src={c.url} className=" w-[200px] h-[45px] object-contain block" style={{aspectRatio:20/3}} />;
+                                }
+                                return renderNode(c, i);
+                            })}
                         </div>
                     )}
                     
                     {/* Hero (Video Section) */}
                     {json.hero && (
-                        <div className="relative w-full bg-black">
+                        <div className="relative w-full bg-black flex-shrink-0">
                             {json.hero.type === 'video' ? (
                                 <div className="relative w-full" style={{aspectRatio: json.hero.aspectRatio ? json.hero.aspectRatio.replace(':','/') : '16/9'}}>
                                     <img src={json.hero.altContent?.url || json.hero.previewUrl} className="w-full h-full object-cover opacity-90" />
                                     
-                                    {/* --- ส่วน Action Overlay --- */}
-                                    {/* ปกติ: bg-black/10 (จางๆ) */}
-                                    {/* Hover: bg-black/40 (เงาเทาเข้มขึ้นเต็มหน้าจอ) */}
+                                    {/* Action Overlay */}
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer">
-                                        {/* ปุ่ม Play: ให้ขยายเล็กน้อย แต่ไม่ต้องมีเงาแยกต่างหากแล้ว เพราะ Overlay ทำหน้าที่บอกสถานะ Hover แล้ว */}
-                                        
-                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
+                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 
                                                         transition-transform duration-300 group-hover:scale-110">
                                             <Icon name="play" size={25} className="text-white fill-white ml-1" />
                                         </div>
-                                        
                                     </div>
+
+                                    {/* Action Label */}
+                                    {json.hero.action && (
+                                        <div className="absolute bottom-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center pointer-events-none z-10">
+                                            {json.hero.action.label} <Icon name="chevron-right" size={14} className="ml-1" />
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <img src={json.hero.url} className="w-full object-cover" style={{aspectRatio: json.hero.aspectRatio?.replace(':','/')}} />
                             )}
-                            
                         </div>
                     )}
 
                     {/* Body */}
                     {json.body && (
-                        <div className="p-4">
+                        <div className="p-4 flex-1 hide-scroll">
                             {renderNode(json.body)}
                         </div>
                     )}
 
                     {/* Footer */}
                     {json.footer && (
-                        <div className="p-4 pt-2 pb-6 border-t border-slate-50 flex justify-center">
+                        <div className="p-4 pt-2 pb-10 border-t border-slate-50 flex justify-center flex-shrink-0">
                             {renderNode(json.footer)}
                         </div>
                     )}
