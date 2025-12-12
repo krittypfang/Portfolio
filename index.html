@@ -367,73 +367,121 @@ const Type2CarouselRenderer = ({ json }) => {
             );
         }
 
-        const Type4StepRenderer = ({ json }) => {
+const Type4StepRenderer = ({ json }) => {
             if (!json) return null;
 
             const renderNode = (node, index) => {
                 if (!node) return null;
                 const key = index;
 
-                const style = {};
-                if (node.flex !== undefined) style.flex = node.flex;
-                if (node.width) style.width = node.width;
-                if (node.height) style.height = node.height;
-                if (node.backgroundColor) style.backgroundColor = node.backgroundColor;
-                if (node.cornerRadius) style.borderRadius = node.cornerRadius;
-                if (node.borderColor) style.borderColor = node.borderColor;
-                if (node.borderWidth) style.borderWidth = node.borderWidth;
-                
+                let style = {
+                    flex: node.flex,
+                    width: node.width,
+                    height: node.height,
+                    backgroundColor: node.backgroundColor,
+                    borderRadius: node.cornerRadius,
+                    borderColor: node.borderColor,
+                    borderWidth: node.borderWidth,
+                };
+
+                if (node.paddingAll) style.padding = node.paddingAll;
+                if (node.paddingTop) style.paddingTop = node.paddingTop;
+                if (node.paddingBottom) style.paddingBottom = node.paddingBottom;
+                if (node.paddingStart) style.paddingLeft = node.paddingStart;
+                if (node.paddingEnd) style.paddingRight = node.paddingEnd;
+
                 if (node.background && node.background.type === 'linearGradient') {
                     style.background = `linear-gradient(${node.background.angle || '0deg'}, ${node.background.startColor}, ${node.background.endColor})`;
                 }
 
-                let className = "";
-                if (node.margin === 'xl') className += " mt-4";
-                if (node.margin === 'lg') className += " mt-3";
-                if (node.margin === 'md') className += " mt-2";
-                if (node.margin === 'sm') className += " mt-1";
-                
+                let positionClass = "relative ";
+                if (node.position === 'absolute') {
+                    positionClass = "absolute ";
+                    if (node.offsetTop) style.top = node.offsetTop;
+                    if (node.offsetBottom) style.bottom = node.offsetBottom;
+                    if (node.offsetStart) style.left = node.offsetStart;
+                    if (node.offsetEnd) style.right = node.offsetEnd;
+                }
+
+                // --- ปรับลด Margin ให้ชิดขึ้น (Spacing Adjustment) ---
+                let marginClass = "";
+                // ลดระดับความห่างลง 1 เบอร์ (เช่น xl จาก mt-5 เหลือ mt-4)
+                const marginMap = { xl: 'mt-4', lg: 'mt-3', md: 'mt-2', sm: 'mt-1', xs: 'mt-0.5' };
+                if (node.margin && marginMap[node.margin]) marginClass = marginMap[node.margin];
+
+                const isClickable = !!node.action;
+                const ElementType = isClickable ? 'a' : 'div';
+                const actionProps = isClickable ? {
+                    href: node.action.uri,
+                    target: '_blank',
+                    rel: 'noreferrer',
+                    className: 'cursor-pointer hover:opacity-90 transition-opacity'
+                } : {};
+
                 if (node.type === 'text') {
-                    const textStyle = { color: node.color, ...style };
+                    style.color = node.color;
                     let textClass = "break-words leading-tight ";
-                    if (node.size === 'xs') textClass += "text-xs ";
-                    if (node.size === 'sm') textClass += "text-sm ";
-                    if (node.size === 'md') textClass += "text-base ";
+                    const sizeMap = { xxs: 'text-[10px]', xs: 'text-xs', sm: 'text-sm', md: 'text-base', lg: 'text-lg', xl: 'text-xl', xxl: 'text-2xl', '3xl': 'text-3xl', '4xl': 'text-4xl', '5xl': 'text-5xl' };
+                    textClass += (sizeMap[node.size] || 'text-base') + " ";
+                    
                     if (node.weight === 'bold') textClass += "font-bold ";
-                    if (node.align === 'center') textClass += "text-center ";
-                    if (node.align === 'end') textClass += "text-right ";
-                    if (node.gravity === 'center') textClass += "flex items-center "; 
                     if (node.style === 'italic') textClass += "italic ";
                     if (node.decoration === 'underline') textClass += "underline ";
                     
-                    return <div key={key} style={textStyle} className={textClass}>{node.text}</div>;
+                    if (node.align === 'center') textClass += "text-center ";
+                    else if (node.align === 'end') textClass += "text-right ";
+                    
+                    if (node.gravity === 'center') textClass += "self-center ";
+                    if (node.gravity === 'bottom') textClass += "self-end ";
+                    if (node.gravity === 'top') textClass += "self-start ";
+
+                    return (
+                        <ElementType key={key} style={style} className={`${positionClass} ${textClass} ${marginClass} ${actionProps.className || ''}`} {...actionProps}>
+                            {node.text}
+                        </ElementType>
+                    );
                 }
 
                 if (node.type === 'box') {
                     let boxClass = "flex ";
                     boxClass += node.layout === 'horizontal' ? "flex-row " : "flex-col ";
+                    
                     if (node.justifyContent === 'center') boxClass += "justify-center ";
+                    else if (node.justifyContent === 'flex-end') boxClass += "justify-end ";
+                    else if (node.justifyContent === 'space-between') boxClass += "justify-between ";
+                    
                     if (node.alignItems === 'center') boxClass += "items-center ";
-                    if (node.layout === 'baseline') boxClass += "items-baseline ";
+                    else if (node.alignItems === 'flex-end') boxClass += "items-end ";
+                    else if (node.alignItems === 'flex-start') boxClass += "items-start ";
                     
-                    if (node.spacing === 'lg') boxClass += "gap-3 ";
-                    if (node.spacing === 'md') boxClass += "gap-2 ";
-                    if (node.spacing === 'sm') boxClass += "gap-1 ";
-                    
+                    const gapMap = { xs: 'gap-1', sm: 'gap-2', md: 'gap-3', lg: 'gap-4', xl: 'gap-5' };
+                    if (node.spacing && gapMap[node.spacing]) boxClass += gapMap[node.spacing] + " ";
+
                     return (
-                        <div key={key} style={style} className={`${boxClass} ${className} relative overflow-visible`}>
+                        <ElementType key={key} style={style} className={`${positionClass} ${boxClass} ${marginClass} ${actionProps.className || ''}`} {...actionProps}>
                             {node.contents?.map((child, i) => renderNode(child, i))}
-                        </div>
+                        </ElementType>
                     );
                 }
 
                 if (node.type === 'image') {
-                    return <img key={key} src={node.url} style={style} className="max-w-full object-contain" />;
+                    const imgStyle = { ...style, objectFit: node.aspectMode === 'cover' ? 'cover' : 'contain' };
+                    if (node.aspectRatio) imgStyle.aspectRatio = node.aspectRatio.replace(':', '/');
+                    
+                    let imgClass = "max-w-full block ";
+                    if (node.gravity === 'center') imgClass += "self-center ";
+                    
+                    if (isClickable) {
+                         return (
+                             <a key={key} {...actionProps} style={{ display: 'contents' }}>
+                                 <img src={node.url} style={imgStyle} className={`${positionClass} ${imgClass} ${marginClass}`} />
+                             </a>
+                         )
+                    }
+                    return <img key={key} src={node.url} style={imgStyle} className={`${positionClass} ${imgClass} ${marginClass}`} />;
                 }
 
-                if (node.type === 'filler') {
-                    return <div key={key} style={{flex: 1}} />;
-                }
+                if (node.type === 'filler') return <div key={key} style={{flex: 1}} />;
                 
                 return null;
             };
@@ -441,36 +489,59 @@ const Type2CarouselRenderer = ({ json }) => {
             const headerStyle = {};
             if (json.header?.background?.type === 'linearGradient') {
                 headerStyle.background = `linear-gradient(${json.header.background.angle}, ${json.header.background.startColor}, ${json.header.background.endColor})`;
+            } else if (json.header?.backgroundColor) {
+                headerStyle.backgroundColor = json.header.backgroundColor;
+            }
+            if (json.header) {
+                if (json.header.paddingAll) headerStyle.padding = json.header.paddingAll;
+                if (json.header.paddingTop) headerStyle.paddingTop = json.header.paddingTop;
+                if (json.header.paddingBottom) headerStyle.paddingBottom = json.header.paddingBottom;
             }
 
             return (
+                // เอา class font-sans ออก เพื่อให้ inherit font-family: 'Prompt' จาก body
                 <div className="bg-white w-full border border-slate-200 shadow-sm rounded-md overflow-hidden flex flex-col">
+                    {/* Header */}
                     {json.header && (
-                        <div style={{...headerStyle, padding: json.header.paddingAll}} className="flex justify-center items-center h-[70px]">
-                            {json.header.contents.map((c, i) => <img key={i} src={c.url} className="h-full object-contain" />)}
+                        <div style={headerStyle} className="flex flex-col justify-center items-center relative">
+                            {json.header.contents.map((c, i) => renderNode(c, i))}
                         </div>
                     )}
-                    {json.hero && json.hero.type === 'video' && (
-                        <div className="relative w-full aspect-video bg-black">
-                            <img src={json.hero.altContent?.url || json.hero.previewUrl} className="w-full h-full object-cover opacity-80" />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center">
-                                    <Icon name="play" className="text-white fill-white ml-1" />
+                    
+                    {/* Hero */}
+                    {json.hero && (
+                        <div className="relative w-full bg-black">
+                            {json.hero.type === 'video' ? (
+                                <div className="relative w-full" style={{aspectRatio: json.hero.aspectRatio ? json.hero.aspectRatio.replace(':','/') : '16/9'}}>
+                                    <img src={json.hero.altContent?.url || json.hero.previewUrl} className="w-full h-full object-cover opacity-90" />
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group cursor-pointer">
+                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform">
+                                            <Icon name="play" size={28} className="text-white fill-white ml-1" />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <img src={json.hero.url} className="w-full object-cover" style={{aspectRatio: json.hero.aspectRatio?.replace(':','/')}} />
+                            )}
                         </div>
                     )}
-                    <div className="p-5">
-                        {renderNode(json.body)}
-                    </div>
+
+                    {/* Body: ลด padding จาก p-5 เป็น p-4 เพื่อลดพื้นที่ว่างรอบๆ */}
+                    {json.body && (
+                        <div className="p-4">
+                            {renderNode(json.body)}
+                        </div>
+                    )}
+
+                    {/* Footer */}
                     {json.footer && (
-                        <div className="p-4 border-t border-slate-50 flex justify-center pb-6">
+                        <div className="p-4 pt-2 pb-6 border-t border-slate-50 flex justify-center">
                             {renderNode(json.footer)}
                         </div>
                     )}
                 </div>
             )
-        }
+        };
         
         const Type5ProcessRenderer = ({ json }) => {
             if (!json) return null;
