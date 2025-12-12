@@ -118,9 +118,9 @@
                                     {/* Hover: bg-black/40 (เงาเทาเข้มขึ้นเต็มหน้าจอ) */}
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer">
                                         {/* ปุ่ม Play: ให้ขยายเล็กน้อย แต่ไม่ต้องมีเงาแยกต่างหากแล้ว เพราะ Overlay ทำหน้าที่บอกสถานะ Hover แล้ว */}
-                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
+                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
                                                         transition-transform duration-300 group-hover:scale-110">
-                                            <Icon name="play" size={28} className="text-white fill-white ml-1" />
+                                            <Icon name="play" size={25} className="text-white fill-white ml-1" />
                                         </div>
                                     </div>
                                 </div>
@@ -150,7 +150,7 @@
             );
         };
 
-const Type2CarouselRenderer = ({ json }) => {
+        const Type2CarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
 
             const scrollRef = React.useRef(null);
@@ -194,10 +194,10 @@ const Type2CarouselRenderer = ({ json }) => {
                     {/* ปุ่มลูกศรซ้าย: ขยับออกไปด้านซ้าย (-left-12) และซ่อนถ้าเลื่อนไม่ได้ */}
                     <button 
                         onClick={() => scroll(-310)}
-                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-green-600 hover:scale-110 transition-all duration-300
+                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
                             ${canScrollLeft ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
                     >
-                        <Icon name="chevron-left" size={24} />
+                        <Icon name="chevron-left" size={28} />
                     </button>
 
                     {/* Container ของ Carousel */}
@@ -208,7 +208,7 @@ const Type2CarouselRenderer = ({ json }) => {
                                     {bubble.hero && (
                                         <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
                                     )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
                                     </div>
                                 </div>
                             )
@@ -218,10 +218,10 @@ const Type2CarouselRenderer = ({ json }) => {
                     {/* ปุ่มลูกศรขวา: ขยับออกไปด้านขวา (-right-12) และซ่อนถ้าเลื่อนไม่ได้ */}
                     <button 
                         onClick={() => scroll(310)}
-                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-green-600 hover:scale-110 transition-all duration-300
+                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
                             ${canScrollRight ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
                     >
-                        <Icon name="chevron-right" size={24} />
+                        <Icon name="chevron-right" size={28} />
                     </button>
                 </div>
             )
@@ -230,6 +230,40 @@ const Type2CarouselRenderer = ({ json }) => {
         const Type3CarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
 
+            // --- ส่วนที่เพิ่ม: Logic การ Scroll และ State ---
+            const scrollRef = React.useRef(null);
+            const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+            const [canScrollRight, setCanScrollRight] = React.useState(true);
+
+            const checkScroll = () => {
+                if (scrollRef.current) {
+                    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+                    setCanScrollLeft(scrollLeft > 1);
+                    setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+                }
+            };
+
+            React.useEffect(() => {
+                checkScroll();
+                const el = scrollRef.current;
+                if (el) {
+                    el.addEventListener('scroll', checkScroll);
+                    window.addEventListener('resize', checkScroll);
+                }
+                return () => {
+                    if (el) el.removeEventListener('scroll', checkScroll);
+                    window.removeEventListener('resize', checkScroll);
+                };
+            }, []);
+
+            const scroll = (offset) => {
+                if (scrollRef.current) {
+                    scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+                }
+            };
+            // -------------------------------------------
+
+            // --- Helper Functions เดิมของ Type 3 (คงไว้เหมือนเดิม) ---
             const findTexts = (node) => {
                 if (!node) return [];
                 if (node.type === 'text' && node.text && node.text.trim() !== '') return [node.text];
@@ -281,106 +315,129 @@ const Type2CarouselRenderer = ({ json }) => {
             };
 
             return (
-                <div className="flex overflow-x-auto pb-4 gap-3 snap-x w-full hide-scroll pl-1">
-                    {json.contents.map((bubble, i) => {
-                        const isCover = i === 0;
-                        if (isCover) {
-                            const bodyContents = bubble.body.contents;
-                            const heroImg = bubble.hero?.url;
-                            const bgPatternUrl = bodyContents[0]?.url;
-                            const titleImgUrl = bodyContents[2]?.url; 
-                            const dateText = bodyContents[3]?.text;
-                            const mascotUrl = bodyContents[4]?.url;
-                            const bgGradient = bubble.body.background;
-                            const gradientStyle = bgGradient ? { background: `linear-gradient(${bgGradient.angle}, ${bgGradient.startColor}, ${bgGradient.endColor})` } : {};
+                <div className="relative group/carousel w-full">
+                    {/* ปุ่มลูกศรซ้าย */}
+                    <button 
+                        onClick={() => scroll(-280)} 
+                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
+                            ${canScrollLeft ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                    >
+                        <Icon name="chevron-left" size={30} />
+                    </button>
 
-                            return (
-                                <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col" style={{width: '260px', height: '420px'}}>
-                                    <div className="bg-white pt-4 pb-2 flex justify-center items-center h-[80px]">
-                                        <img src={heroImg} className="w-[150px] object-contain" />
-                                    </div>
-                                    <div className="flex-1 relative overflow-hidden" style={gradientStyle}>
-                                        <div className="relative w-full h-full">
-                                            <img src={bgPatternUrl} className="absolute w-full object-cover opacity-40 z-0" style={{top: '-40px'}} />
-                                            <div className="relative w-full h-full flex flex-col items-center">
-                                                <img src={titleImgUrl} className="w-[90%] object-contain z-10 mt-[-20px]" />
-                                                <div className="absolute w-full text-center z-20" style={{top: '70px'}}>
-                                                    <p className="text-lg font-bold text-white drop-shadow-md">{dateText}</p>
-                                                    <p className="text-[10px] text-white/90">ประจำงวดวันที่ 16 พฤศจิกายน 2568</p>
+                    {/* Container ของ Carousel (ใส่ ref={scrollRef}) */}
+                    <div ref={scrollRef} className="flex overflow-x-auto pb-4 gap-3 snap-x w-full hide-scroll pl-1 scroll-smooth">
+                        {json.contents.map((bubble, i) => {
+                            const isCover = i === 0;
+                            // --- Logic การ Render การ์ดแต่ละใบ (คงเดิม) ---
+                            if (isCover) {
+                                const bodyContents = bubble.body.contents;
+                                const heroImg = bubble.hero?.url;
+                                const bgPatternUrl = bodyContents[0]?.url;
+                                const titleImgUrl = bodyContents[2]?.url; 
+                                const dateText = bodyContents[3]?.text;
+                                const mascotUrl = bodyContents[4]?.url;
+                                const bgGradient = bubble.body.background;
+                                const gradientStyle = bgGradient ? { background: `linear-gradient(${bgGradient.angle}, ${bgGradient.startColor}, ${bgGradient.endColor})` } : {};
+
+                                return (
+                                    <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col" style={{width: '260px', height: '420px'}}>
+                                        <div className="bg-white pt-4 pb-2 flex justify-center items-center h-[80px]">
+                                            <img src={heroImg} className="w-[150px] object-contain" />
+                                        </div>
+                                        <div className="flex-1 relative overflow-hidden" style={gradientStyle}>
+                                            <div className="relative w-full h-full">
+                                                <img src={bgPatternUrl} className="absolute w-full object-cover opacity-40 z-0" style={{top: '-40px'}} />
+                                                <div className="relative w-full h-full flex flex-col items-center">
+                                                    <img src={titleImgUrl} className="w-[90%] object-contain z-10 mt-[-20px]" />
+                                                    <div className="absolute w-full text-center z-20" style={{top: '70px'}}>
+                                                        <p className="text-lg font-bold text-white drop-shadow-md">{dateText}</p>
+                                                        <p className="text-[10px] text-white/90">ประจำงวดวันที่ 16 พฤศจิกายน 2568</p>
+                                                    </div>
+                                                    <img src={mascotUrl} className="absolute w-[80%] object-contain z-30" style={{bottom: '-10px'}} />
                                                 </div>
-                                                <img src={mascotUrl} className="absolute w-[80%] object-contain z-30" style={{bottom: '-10px'}} />
                                             </div>
                                         </div>
                                     </div>
+                                );
+                            }
+
+                            const contentBoxes = findWhiteBoxes(bubble.body);
+                            const warningText = findWarningText(bubble.body) || "";
+
+                            if (contentBoxes.length === 0) return <div key={i} className="w-[260px] h-[420px] bg-red-50 flex items-center justify-center text-red-400">No Content</div>;
+
+                            return (
+                                <div key={i} className="flex-shrink-0 snap-center bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 relative p-2" style={{width: '260px', height: '420px'}}>
+                                    <div className="flex-1 overflow-y-auto hide-scroll p-2 space-y-2">
+                                        {contentBoxes.map((contentBox, boxIdx) => {
+                                            const innerContents = contentBox.contents || [];
+                                            const headerBox = innerContents[0];
+                                            let headerLogoUrl = null;
+                                            let headerGradient = null;
+                                            if (headerBox.type === 'image') {
+                                                headerLogoUrl = headerBox.url;
+                                            } else {
+                                                headerLogoUrl = findImageUrl(headerBox);
+                                                headerGradient = headerBox.background;
+                                            }
+                                            const headerStyle = headerGradient ? { background: `linear-gradient(${headerGradient.angle}, ${headerGradient.startColor}, ${headerGradient.endColor})` } : { backgroundColor: '#ffffff' };
+                                            const restNodes = innerContents.slice(1);
+                                            let allTexts = [];
+                                            restNodes.forEach(n => { allTexts = [...allTexts, ...findTexts(n)]; });
+                                            allTexts = allTexts.filter(t => t && t.trim().length > 0);
+                                            const numbers = [];
+                                            let labelText = "";
+                                            allTexts.forEach(txt => {
+                                                if (/^\d+$/.test(txt)) { numbers.push(txt); } else { labelText = txt; }
+                                            });
+
+                                            return (
+                                                <div key={boxIdx} className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 flex flex-col">
+                                                    <div className="p-4 relative h-[80px] flex items-center justify-center overflow-hidden" style={headerStyle}>
+                                                        {headerLogoUrl ? <img src={headerLogoUrl} className={`${headerGradient ? 'w-[70%]' : 'w-full'} h-full object-contain relative z-10`} /> : null}
+                                                        {headerGradient && <div className="absolute inset-2 border border-white/20 rounded-lg pointer-events-none"></div>}
+                                                    </div>
+                                                    <div className="py-2 px-2 flex flex-col items-center gap-1 bg-slate-50/50">
+                                                        <div className="flex w-full justify-center gap-4 px-2">
+                                                            {numbers.slice(0, 2).map((t, idx) => (
+                                                                <span key={idx} className="text-2xl font-bold text-slate-800 tracking-wider">{t}</span>
+                                                            ))}
+                                                        </div>
+                                                        {numbers.length > 2 && <div className="w-1/2 h-[1px] bg-slate-200"></div>}
+                                                        <div className="flex w-full justify-center gap-2 px-2 flex-wrap">
+                                                            {numbers.slice(2).map((t, idx) => (
+                                                                <span key={idx} className="text-sm font-bold text-slate-600 bg-white px-1 rounded shadow-sm border border-slate-100 min-w-[20px] text-center">{t}</span>
+                                                            ))}
+                                                        </div>
+                                                        {labelText && <span className="text-xs font-bold text-slate-600 mt-1">{labelText}</span>}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="h-6 w-full relative">
+                                        {warningText && <p className="text-[9px] text-slate-400 absolute bottom-1 right-2 text-right w-full">{warningText}</p>}
+                                    </div>
                                 </div>
                             );
-                        }
+                        })}
+                    </div>
 
-                        const contentBoxes = findWhiteBoxes(bubble.body);
-                        const warningText = findWarningText(bubble.body) || "";
-
-                        if (contentBoxes.length === 0) return <div key={i} className="w-[260px] h-[420px] bg-red-50 flex items-center justify-center text-red-400">No Content</div>;
-
-                        return (
-                            <div key={i} className="flex-shrink-0 snap-center bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 relative p-2" style={{width: '260px', height: '420px'}}>
-                                <div className="flex-1 overflow-y-auto hide-scroll p-2 space-y-2">
-                                    {contentBoxes.map((contentBox, boxIdx) => {
-                                        const innerContents = contentBox.contents || [];
-                                        const headerBox = innerContents[0];
-                                        let headerLogoUrl = null;
-                                        let headerGradient = null;
-                                        if (headerBox.type === 'image') {
-                                            headerLogoUrl = headerBox.url;
-                                        } else {
-                                            headerLogoUrl = findImageUrl(headerBox);
-                                            headerGradient = headerBox.background;
-                                        }
-                                        const headerStyle = headerGradient ? { background: `linear-gradient(${headerGradient.angle}, ${headerGradient.startColor}, ${headerGradient.endColor})` } : { backgroundColor: '#ffffff' };
-                                        const restNodes = innerContents.slice(1);
-                                        let allTexts = [];
-                                        restNodes.forEach(n => { allTexts = [...allTexts, ...findTexts(n)]; });
-                                        allTexts = allTexts.filter(t => t && t.trim().length > 0);
-                                        const numbers = [];
-                                        let labelText = "";
-                                        allTexts.forEach(txt => {
-                                            if (/^\d+$/.test(txt)) { numbers.push(txt); } else { labelText = txt; }
-                                        });
-
-                                        return (
-                                            <div key={boxIdx} className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 flex flex-col">
-                                                <div className="p-4 relative h-[80px] flex items-center justify-center overflow-hidden" style={headerStyle}>
-                                                    {headerLogoUrl ? <img src={headerLogoUrl} className={`${headerGradient ? 'w-[70%]' : 'w-full'} h-full object-contain relative z-10`} /> : null}
-                                                    {headerGradient && <div className="absolute inset-2 border border-white/20 rounded-lg pointer-events-none"></div>}
-                                                </div>
-                                                <div className="py-2 px-2 flex flex-col items-center gap-1 bg-slate-50/50">
-                                                    <div className="flex w-full justify-center gap-4 px-2">
-                                                        {numbers.slice(0, 2).map((t, idx) => (
-                                                            <span key={idx} className="text-2xl font-bold text-slate-800 tracking-wider">{t}</span>
-                                                        ))}
-                                                    </div>
-                                                    {numbers.length > 2 && <div className="w-1/2 h-[1px] bg-slate-200"></div>}
-                                                    <div className="flex w-full justify-center gap-2 px-2 flex-wrap">
-                                                        {numbers.slice(2).map((t, idx) => (
-                                                            <span key={idx} className="text-sm font-bold text-slate-600 bg-white px-1 rounded shadow-sm border border-slate-100 min-w-[20px] text-center">{t}</span>
-                                                        ))}
-                                                    </div>
-                                                    {labelText && <span className="text-xs font-bold text-slate-600 mt-1">{labelText}</span>}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                                <div className="h-6 w-full relative">
-                                    {warningText && <p className="text-[9px] text-slate-400 absolute bottom-1 right-2 text-right w-full">{warningText}</p>}
-                                </div>
-                            </div>
-                        );
-                    })}
+                    {/* ปุ่มลูกศรขวา */}
+                    <button 
+                        onClick={() => scroll(280)} 
+                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
+                            ${canScrollRight ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                    >
+                        <Icon name="chevron-right" size={30} />
+                    </button>
                 </div>
             );
         }
+        
 
-const Type4StepRenderer = ({ json }) => {
+        const Type4StepRenderer = ({ json }) => {
             if (!json) return null;
 
             const renderNode = (node, index) => {
@@ -540,9 +597,9 @@ const Type4StepRenderer = ({ json }) => {
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer">
                                         {/* ปุ่ม Play: ให้ขยายเล็กน้อย แต่ไม่ต้องมีเงาแยกต่างหากแล้ว เพราะ Overlay ทำหน้าที่บอกสถานะ Hover แล้ว */}
                                         
-                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
+                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
                                                         transition-transform duration-300 group-hover:scale-110">
-                                            <Icon name="play" size={28} className="text-white fill-white ml-1" />
+                                            <Icon name="play" size={25} className="text-white fill-white ml-1" />
                                         </div>
                                         
                                     </div>
@@ -570,6 +627,8 @@ const Type4StepRenderer = ({ json }) => {
                 </div>
             )
         };
+        
+        
         
         const Type5ProcessRenderer = ({ json }) => {
             if (!json) return null;
@@ -621,12 +680,13 @@ const Type4StepRenderer = ({ json }) => {
                                     {/* --- ส่วน Action Overlay --- */}
                                     {/* ปกติ: bg-black/10 (จางๆ) */}
                                     {/* Hover: bg-black/40 (เงาเทาเข้มขึ้นเต็มหน้าจอ) */}
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer">
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer ">
+                                    {/* <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">*/}
                                         {/* ปุ่ม Play: ให้ขยายเล็กน้อย แต่ไม่ต้องมีเงาแยกต่างหากแล้ว เพราะ Overlay ทำหน้าที่บอกสถานะ Hover แล้ว */}
                                         
-                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
+                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
                                                         transition-transform duration-300 group-hover:scale-110">
-                                            <Icon name="play" size={28} className="text-white fill-white ml-1" />
+                                            <Icon name="play" size={25} className="text-white fill-white ml-1" />
                                         </div>
                                         
                                     </div>
@@ -697,21 +757,21 @@ const Type4StepRenderer = ({ json }) => {
                     {/* ปุ่มลูกศรซ้าย: ขยับออกไปด้านซ้าย (-left-12) และซ่อนถ้าเลื่อนไม่ได้ */}
                     <button 
                         onClick={() => scroll(-310)}
-                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-green-600 hover:scale-110 transition-all duration-300
+                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
                             ${canScrollLeft ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
                     >
-                        <Icon name="chevron-left" size={24} />
+                        <Icon name="chevron-left" size={30} />
                     </button>
 
                     {/* Container ของ Carousel */}
                     <div ref={scrollRef} className="flex overflow-x-auto pb-4 gap-3 snap-x w-full hide-scroll pl-1 scroll-smooth">
                         {json.contents.map((bubble, i) => {
                             return (
-                                <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '240px', aspectRatio: '1/2'}}>
+                                <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '260px', aspectRatio: '1/2'}}>
                                     {bubble.hero && (
                                         <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
                                     )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
                                     </div>
                                 </div>
                             )
@@ -721,10 +781,10 @@ const Type4StepRenderer = ({ json }) => {
                     {/* ปุ่มลูกศรขวา: ขยับออกไปด้านขวา (-right-12) และซ่อนถ้าเลื่อนไม่ได้ */}
                     <button 
                         onClick={() => scroll(310)}
-                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-green-600 hover:scale-110 transition-all duration-300
+                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
                             ${canScrollRight ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
                     >
-                        <Icon name="chevron-right" size={24} />
+                        <Icon name="chevron-right" size={30} />
                     </button>
                 </div>
             )
