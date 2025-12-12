@@ -519,13 +519,14 @@ const Type4StepRenderer = ({ json }) => {
                             {json.hero.type === 'video' ? (
                                 <div className="relative w-full" style={{aspectRatio: json.hero.aspectRatio ? json.hero.aspectRatio.replace(':','/') : '16/9'}}>
                                     <img src={json.hero.altContent?.url || json.hero.previewUrl} className="w-full h-full object-cover opacity-90" />
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group cursor-pointer">
-                                        {/* ปรับปรุงปุ่ม Play:
-                                            - เพิ่ม group-hover:bg-white/30 (พื้นหลังสว่างขึ้น)
-                                            - เพิ่ม group-hover:shadow-[...] (เงาฟุ้งสีขาว)
-                                            - เปลี่ยน transition เป็น transition-all duration-300 เพื่อให้เนียนขึ้น
-                                        */}
-                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 group-hover:bg-white/30 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] transition-all duration-300">
+                                    
+                                    {/* --- ส่วน Action Overlay --- */}
+                                    {/* ปกติ: bg-black/10 (จางๆ) */}
+                                    {/* Hover: bg-black/40 (เงาเทาเข้มขึ้นเต็มหน้าจอ) */}
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer">
+                                        {/* ปุ่ม Play: ให้ขยายเล็กน้อย แต่ไม่ต้องมีเงาแยกต่างหากแล้ว เพราะ Overlay ทำหน้าที่บอกสถานะ Hover แล้ว */}
+                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
+                                                        transition-transform duration-300 group-hover:scale-110">
                                             <Icon name="play" size={28} className="text-white fill-white ml-1" />
                                         </div>
                                     </div>
