@@ -403,19 +403,18 @@ const Type4StepRenderer = ({ json }) => {
                     if (node.offsetEnd) style.right = node.offsetEnd;
                 }
 
-                // --- ปรับลด Margin ให้ชิดขึ้น (Spacing Adjustment) ---
                 let marginClass = "";
-                // ลดระดับความห่างลง 1 เบอร์ (เช่น xl จาก mt-5 เหลือ mt-4)
                 const marginMap = { xl: 'mt-4', lg: 'mt-3', md: 'mt-2', sm: 'mt-1', xs: 'mt-0.5' };
                 if (node.margin && marginMap[node.margin]) marginClass = marginMap[node.margin];
 
                 const isClickable = !!node.action;
                 const ElementType = isClickable ? 'a' : 'div';
+                
                 const actionProps = isClickable ? {
                     href: node.action.uri,
                     target: '_blank',
                     rel: 'noreferrer',
-                    className: 'cursor-pointer hover:opacity-90 transition-opacity'
+                    className: 'cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95' 
                 } : {};
 
                 if (node.type === 'text') {
@@ -428,12 +427,19 @@ const Type4StepRenderer = ({ json }) => {
                     if (node.style === 'italic') textClass += "italic ";
                     if (node.decoration === 'underline') textClass += "underline ";
                     
-                    if (node.align === 'center') textClass += "text-center ";
-                    else if (node.align === 'end') textClass += "text-right ";
-                    
-                    if (node.gravity === 'center') textClass += "self-center ";
-                    if (node.gravity === 'bottom') textClass += "self-end ";
-                    if (node.gravity === 'top') textClass += "self-start ";
+                    if (node.wrap) {
+                        textClass += "text-left self-start ";
+                    } else if (node.color === '#ffffff' && node.weight === 'bold') {
+                        textClass += "text-center w-full h-full flex items-center justify-center "; 
+                        marginClass = ""; 
+                    } else {
+                        if (node.align === 'center') textClass += "text-center ";
+                        else if (node.align === 'end') textClass += "text-right ";
+                        
+                        if (node.gravity === 'center') textClass += "self-center ";
+                        if (node.gravity === 'bottom') textClass += "self-end ";
+                        if (node.gravity === 'top') textClass += "self-start ";
+                    }
 
                     return (
                         <ElementType key={key} style={style} className={`${positionClass} ${textClass} ${marginClass} ${actionProps.className || ''}`} {...actionProps}>
@@ -474,7 +480,7 @@ const Type4StepRenderer = ({ json }) => {
                     if (isClickable) {
                          return (
                              <a key={key} {...actionProps} style={{ display: 'contents' }}>
-                                 <img src={node.url} style={imgStyle} className={`${positionClass} ${imgClass} ${marginClass}`} />
+                                 <img src={node.url} style={imgStyle} className={`${positionClass} ${imgClass} ${marginClass} ${actionProps.className}`} />
                              </a>
                          )
                     }
@@ -499,7 +505,6 @@ const Type4StepRenderer = ({ json }) => {
             }
 
             return (
-                // เอา class font-sans ออก เพื่อให้ inherit font-family: 'Prompt' จาก body
                 <div className="bg-white w-full border border-slate-200 shadow-sm rounded-md overflow-hidden flex flex-col">
                     {/* Header */}
                     {json.header && (
@@ -508,14 +513,19 @@ const Type4StepRenderer = ({ json }) => {
                         </div>
                     )}
                     
-                    {/* Hero */}
+                    {/* Hero (Video Section) */}
                     {json.hero && (
                         <div className="relative w-full bg-black">
                             {json.hero.type === 'video' ? (
                                 <div className="relative w-full" style={{aspectRatio: json.hero.aspectRatio ? json.hero.aspectRatio.replace(':','/') : '16/9'}}>
                                     <img src={json.hero.altContent?.url || json.hero.previewUrl} className="w-full h-full object-cover opacity-90" />
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 group cursor-pointer">
-                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform">
+                                        {/* ปรับปรุงปุ่ม Play:
+                                            - เพิ่ม group-hover:bg-white/30 (พื้นหลังสว่างขึ้น)
+                                            - เพิ่ม group-hover:shadow-[...] (เงาฟุ้งสีขาว)
+                                            - เปลี่ยน transition เป็น transition-all duration-300 เพื่อให้เนียนขึ้น
+                                        */}
+                                        <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 group-hover:bg-white/30 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] transition-all duration-300">
                                             <Icon name="play" size={28} className="text-white fill-white ml-1" />
                                         </div>
                                     </div>
@@ -526,7 +536,7 @@ const Type4StepRenderer = ({ json }) => {
                         </div>
                     )}
 
-                    {/* Body: ลด padding จาก p-5 เป็น p-4 เพื่อลดพื้นที่ว่างรอบๆ */}
+                    {/* Body */}
                     {json.body && (
                         <div className="p-4">
                             {renderNode(json.body)}
