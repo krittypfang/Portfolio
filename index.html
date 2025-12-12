@@ -137,22 +137,79 @@
             );
         };
 
-        const Type2CarouselRenderer = ({ json }) => {
+const Type2CarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
-            return (
-                <div className="flex overflow-x-auto pb-4 gap-3 snap-x w-full hide-scroll pl-1">
-                    {json.contents.map((bubble, i) => {
-                        return (
-                            <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '300px', aspectRatio: '3/3.2'}}>
-                                {bubble.hero && (
-                                    <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
 
+            const scrollRef = React.useRef(null);
+            const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+            const [canScrollRight, setCanScrollRight] = React.useState(true);
+
+            // ฟังก์ชันตรวจสอบตำแหน่ง Scroll เพื่อซ่อน/แสดงปุ่ม
+            const checkScroll = () => {
+                if (scrollRef.current) {
+                    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+                    // อยู่ซ้ายสุดหรือไม่? (เผื่อค่าคลาดเคลื่อนเล็กน้อยใช้ > 1)
+                    setCanScrollLeft(scrollLeft > 1);
+                    // อยู่ขวาสุดหรือไม่? (ใช้ Math.ceil เผื่อทศนิยม)
+                    setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+                }
+            };
+
+            // ตรวจสอบตอนโหลดครั้งแรกและตอน Scroll
+            React.useEffect(() => {
+                checkScroll();
+                const el = scrollRef.current;
+                if (el) {
+                    el.addEventListener('scroll', checkScroll);
+                    // ตรวจสอบตอน Resize หน้าจอด้วยเผื่อ layout เปลี่ยน
+                    window.addEventListener('resize', checkScroll);
+                }
+                return () => {
+                    if (el) el.removeEventListener('scroll', checkScroll);
+                    window.removeEventListener('resize', checkScroll);
+                };
+            }, []);
+
+            const scroll = (offset) => {
+                if (scrollRef.current) {
+                    scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+                }
+            };
+
+            return (
+                <div className="relative group/carousel w-full">
+                    {/* ปุ่มลูกศรซ้าย: ขยับออกไปด้านซ้าย (-left-12) และซ่อนถ้าเลื่อนไม่ได้ */}
+                    <button 
+                        onClick={() => scroll(-310)}
+                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-green-600 hover:scale-110 transition-all duration-300
+                            ${canScrollLeft ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                    >
+                        <Icon name="chevron-left" size={24} />
+                    </button>
+
+                    {/* Container ของ Carousel */}
+                    <div ref={scrollRef} className="flex overflow-x-auto pb-4 gap-3 snap-x w-full hide-scroll pl-1 scroll-smooth">
+                        {json.contents.map((bubble, i) => {
+                            return (
+                                <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '300px', aspectRatio: '3/3.2'}}>
+                                    {bubble.hero && (
+                                        <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                    </div>
                                 </div>
-                            </div>
-                        )
-                    })}
+                            )
+                        })}
+                    </div>
+
+                    {/* ปุ่มลูกศรขวา: ขยับออกไปด้านขวา (-right-12) และซ่อนถ้าเลื่อนไม่ได้ */}
+                    <button 
+                        onClick={() => scroll(310)}
+                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-green-600 hover:scale-110 transition-all duration-300
+                            ${canScrollRight ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                    >
+                        <Icon name="chevron-right" size={24} />
+                    </button>
                 </div>
             )
         };
@@ -488,20 +545,77 @@
 
         const Type6PortraitCarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
-            return (
-                <div className="flex overflow-x-auto pb-4 gap-3 snap-x w-full hide-scroll pl-1">
-                    {json.contents.map((bubble, i) => {
-                        return (
-                            <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '240px', aspectRatio: '1/2'}}>
-                                {bubble.hero && (
-                                    <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
 
+            const scrollRef = React.useRef(null);
+            const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+            const [canScrollRight, setCanScrollRight] = React.useState(true);
+
+            // ฟังก์ชันตรวจสอบตำแหน่ง Scroll เพื่อซ่อน/แสดงปุ่ม
+            const checkScroll = () => {
+                if (scrollRef.current) {
+                    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+                    // อยู่ซ้ายสุดหรือไม่? (เผื่อค่าคลาดเคลื่อนเล็กน้อยใช้ > 1)
+                    setCanScrollLeft(scrollLeft > 1);
+                    // อยู่ขวาสุดหรือไม่? (ใช้ Math.ceil เผื่อทศนิยม)
+                    setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+                }
+            };
+
+            // ตรวจสอบตอนโหลดครั้งแรกและตอน Scroll
+            React.useEffect(() => {
+                checkScroll();
+                const el = scrollRef.current;
+                if (el) {
+                    el.addEventListener('scroll', checkScroll);
+                    // ตรวจสอบตอน Resize หน้าจอด้วยเผื่อ layout เปลี่ยน
+                    window.addEventListener('resize', checkScroll);
+                }
+                return () => {
+                    if (el) el.removeEventListener('scroll', checkScroll);
+                    window.removeEventListener('resize', checkScroll);
+                };
+            }, []);
+
+            const scroll = (offset) => {
+                if (scrollRef.current) {
+                    scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+                }
+            };
+
+            return (
+                <div className="relative group/carousel w-full">
+                    {/* ปุ่มลูกศรซ้าย: ขยับออกไปด้านซ้าย (-left-12) และซ่อนถ้าเลื่อนไม่ได้ */}
+                    <button 
+                        onClick={() => scroll(-310)}
+                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-green-600 hover:scale-110 transition-all duration-300
+                            ${canScrollLeft ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                    >
+                        <Icon name="chevron-left" size={24} />
+                    </button>
+
+                    {/* Container ของ Carousel */}
+                    <div ref={scrollRef} className="flex overflow-x-auto pb-4 gap-3 snap-x w-full hide-scroll pl-1 scroll-smooth">
+                        {json.contents.map((bubble, i) => {
+                            return (
+                                <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '240px', aspectRatio: '1/2'}}>
+                                    {bubble.hero && (
+                                        <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                    </div>
                                 </div>
-                            </div>
-                        )
-                    })}
+                            )
+                        })}
+                    </div>
+
+                    {/* ปุ่มลูกศรขวา: ขยับออกไปด้านขวา (-right-12) และซ่อนถ้าเลื่อนไม่ได้ */}
+                    <button 
+                        onClick={() => scroll(310)}
+                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-green-600 hover:scale-110 transition-all duration-300
+                            ${canScrollRight ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                    >
+                        <Icon name="chevron-right" size={24} />
+                    </button>
                 </div>
             )
         };
