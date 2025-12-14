@@ -235,6 +235,10 @@
             )
         };
 
+
+
+
+
 const Type3CarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
 
@@ -356,14 +360,14 @@ const Type3CarouselRenderer = ({ json }) => {
                                         </div>
                                         <div className="flex-1 relative overflow-hidden" style={gradientStyle}>
                                             <div className="relative w-full h-full">
-                                                <img src={bgPatternUrl} className="absolute w-full object-cover opacity-40 z-0" style={{top: '-40px'}} />
-                                                <div className="relative w-full h-full flex flex-col items-center">
-                                                    <img src={titleImgUrl} className="w-[90%] object-contain z-10 mt-[-20px]" />
+                                                <img src={bgPatternUrl} className="absolute w-full h-full object-cover z-0"  />
+                                                <div className="relative w-full h-full flex flex-col items-center" style={{top: '-10px'}}>
+                                                    <img src={titleImgUrl} className="w-[85%] object-contain z-10 " />
                                                     <div className="absolute w-full text-center z-20" style={{top: '70px'}}>
-                                                        <p className="text-lg font-bold text-white drop-shadow-md">{dateText}</p>
-                                                        <p className="text-[10px] text-white/90">ประจำงวดวันที่ 16 พฤศจิกายน 2568</p>
+                                                        <p className="text-[10px] font-bold text-white drop-shadow-md">ประจำงวดวันที่ 16 พฤศจิกายน 2568</p>
+
                                                     </div>
-                                                    <img src={mascotUrl} className="absolute w-[80%] object-contain z-30" style={{bottom: '-10px'}} />
+                                                    <img src={mascotUrl} className="absolute w-[60%] object-contain z-30 py-[80px]" style={{bottom: '-35px'}} />
                                                 </div>
                                             </div>
                                         </div>
