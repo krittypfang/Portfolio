@@ -104,7 +104,7 @@
                 : '16/9';
             
             return (
-                <div className="bg-white w-full  h-[500px] flex flex-col border border-slate-200 shadow-sm mx-auto overflow-hidden rounded-md">
+                <div className="bg-white w-full  h-[500px] flex flex-col rounded-xl border border-slate-200 shadow-sm mx-auto overflow-hidden rounded-md">
 {/* Header: ให้ความสูงปรับตามรูปภาพแต่ไม่ให้หด (flex-shrink-0) */}
                     {json.header?.contents?.[0]?.url && (
                         <div className=" w-full h-[20] bg-slate-50 relative">
@@ -243,57 +243,6 @@
 const Type3CarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
 
-            // --- Helper Functions ---
-            const findTexts = (node) => {
-                if (!node) return [];
-                if (node.type === 'text' && node.text && node.text.trim() !== '') return [node.text];
-                if (node.contents && Array.isArray(node.contents)) {
-                    let texts = [];
-                    for (let c of node.contents) {
-                        texts = [...texts, ...findTexts(c)];
-                    }
-                    return texts;
-                }
-                return [];
-            };
-
-            const findImageUrl = (node) => {
-                if (!node) return null;
-                if (node.type === 'image') return node.url;
-                if (node.contents && Array.isArray(node.contents)) {
-                    for (let c of node.contents) {
-                        const found = findImageUrl(c);
-                        if (found) return found;
-                    }
-                }
-                return null;
-            };
-
-            const findWhiteBoxes = (node) => {
-                if (!node) return [];
-                if (node.type === 'box' && node.backgroundColor === '#ffffff') return [node];
-                if (node.contents && Array.isArray(node.contents)) {
-                    let boxes = [];
-                    for (let c of node.contents) {
-                        boxes = [...boxes, ...findWhiteBoxes(c)];
-                    }
-                    return boxes;
-                }
-                return [];
-            };
-
-            const findWarningText = (node) => {
-                if (!node) return null;
-                if (node.type === 'text' && node.position === 'absolute' && node.text.includes('ความเชื่อ')) return node.text;
-                if (node.contents && Array.isArray(node.contents)) {
-                    for (let c of node.contents) {
-                        const found = findWarningText(c);
-                        if (found) return found;
-                    }
-                }
-                return null;
-            };
-
             // --- Scroll Logic ---
             const scrollRef = React.useRef(null);
             const [canScrollLeft, setCanScrollLeft] = React.useState(false);
@@ -328,37 +277,176 @@ const Type3CarouselRenderer = ({ json }) => {
                 }
             };
 
+            // --- Recursive Renderer (สำหรับ Bubble 2, 3...) ---
+            const renderFlexComponent = (component, index) => {
+                if (!component) return null;
+                const { type, contents, text, url, layout, flex, margin, spacing, size, align, gravity, weight, color, backgroundColor, cornerRadius, borderColor, borderWidth, paddingAll, height, width, position, offsetTop, offsetBottom, offsetStart, offsetEnd, aspectRatio, aspectMode, action } = component;
+                
+                const style = {};
+                if (flex !== undefined) style.flex = flex;
+                if (width) style.width = width;
+                const isContainer = type === 'box' && contents && contents.length > 0;
+                if (height && !isContainer) {
+                    style.height = height;
+                } else if (isContainer) {
+                    style.height = 'auto'; // Force auto height for containers
+                }
+
+                if (backgroundColor) style.backgroundColor = backgroundColor;
+                
+                if (cornerRadius) {
+                     const radiusMap = { xs: '2px', sm: '4px', md: '8px', lg: '12px', xl: '16px', xxl: '20px' };
+                     style.borderRadius = radiusMap[cornerRadius] || cornerRadius;
+                }
+
+                
+                if (component.background && component.background.type === 'linearGradient') {
+                    style.background = `linear-gradient(${component.background.angle || '0deg'}, ${component.background.startColor}, ${component.background.endColor})`;
+                }
+
+                let className = "relative ";
+                if (position === 'absolute') {
+                    className = "absolute ";
+                    if (offsetTop) style.top = offsetTop;
+                    if (offsetBottom) style.bottom = offsetBottom;
+                    if (offsetStart) style.left = offsetStart;
+                    if (offsetEnd) style.right = offsetEnd;
+                } else {
+                    if (offsetTop) style.top = offsetTop;
+                    if (offsetBottom) style.bottom = offsetBottom;
+                    if (offsetStart) style.marginLeft = offsetStart;
+                    if (offsetEnd) style.marginRight = offsetEnd;
+                }
+
+                const spaceMap = { xs: '8px', sm: '12px', md: '16px', lg: '50px', xl: '60px', xxl: '70px' };
+                
+                if (margin) style.marginTop = spaceMap[margin] || margin;
+                if (paddingAll) style.padding = spaceMap[paddingAll] || paddingAll;
+                
+                const isClickable = !!action;
+                const ElementType = isClickable ? 'a' : 'div';
+                const actionProps = isClickable ? {
+                    href: action.uri,
+                    target: '_blank',
+                    className: 'cursor-pointer hover:opacity-90 transition-opacity block'
+                } : {};
+
+                if (type === 'box') {
+                    style.display = 'flex';
+                    style.flexDirection = layout === 'horizontal' ? 'row' : 'column';
+                    if (component.justifyContent === 'center') style.justifyContent = 'center';
+                    else if (component.justifyContent === 'space-around') style.justifyContent = 'space-around';
+                    else if (component.justifyContent === 'space-between') style.justifyContent = 'space-between';
+                    else if (component.justifyContent === 'flex-end') style.justifyContent = 'flex-end';
+                    if (component.alignItems === 'center') style.alignItems = 'center';
+                    if (component.alignItems === 'flex-end') style.alignItems = 'flex-end';
+
+                    if (spacing) {
+                        style.gap = spaceMap[spacing] || spacing;
+                    } else if (layout === 'horizontal') {
+                        style.gap = '8px'; 
+                    } 
+
+                    const overflowClass = cornerRadius ? 'overflow-hidden' : '';
+                    
+                    return (
+                        <ElementType key={index} className={`${className} overflow-hidden`} style={style} {...actionProps}>
+                            {contents && contents.map((child, i) => renderFlexComponent(child, i))}
+                        </ElementType>
+                    );
+                }
+
+                if (type === 'text') {
+                    className += " leading-tight break-words font-prompt";
+                    const sizeMapVal = { xxs: '10px', xs: '12px', sm: '14px', md: '16px', lg: '18px', xl: '20px', xxl: '24px', '3xl': '30px', '4xl': '36px', '5xl': '48px' };
+                    style.fontSize = sizeMapVal[size] || '16px';
+                    
+                    if (weight === 'bold') style.fontWeight = 'bold';
+                    if (component.style === 'italic') style.fontStyle = 'italic';
+                    if (component.decoration === 'underline') style.textDecoration = 'underline';
+                    
+                    if (align === 'center') style.textAlign = 'center';
+                    if (align === 'end') style.textAlign = 'right';
+                    
+                    if (color) style.color = color;
+                    if (component.wrap) className += " whitespace-normal"; else className += " whitespace-nowrap";
+
+                    if (contents && contents.length > 0) {
+                         return (
+                            <ElementType key={index} className={className} style={style} {...actionProps}>
+                                {contents.map((span, sIdx) => (
+                                    <span key={sIdx} style={{
+                                        fontSize: sizeMapVal[span.size] || 'inherit',
+                                        fontWeight: span.weight === 'bold' ? 'bold' : 'normal',
+                                        color: span.color || 'inherit',
+                                        fontStyle: span.style || 'normal',
+                                        textDecoration: span.decoration || 'none'
+                                    }}>{span.text}</span>
+                                ))}
+                            </ElementType>
+                         );
+                    }
+                    return <ElementType key={index} className={className} style={style} {...actionProps}>{text}</ElementType>;
+                }
+
+                if (type === 'image') {
+                    style.objectFit = aspectMode === 'cover' ? 'cover' : 'contain';
+                    if (aspectRatio) style.aspectRatio = aspectRatio.replace(':', '/');
+                    if (size === 'full') style.width = '100%';
+                    else if (size) style.width = size;
+                    
+                    style.flexShrink = 0; 
+
+                    if (isClickable) {
+                         return (
+                             <a key={index} {...actionProps} className={`${className} block`}>
+                                 <img src={url} style={style} className="block w-full h-full" loading="lazy" />
+                             </a>
+                         );
+                    }
+                    return <img key={index} src={url} className={className} style={style} loading="lazy" />;
+                }
+                
+                if (type === 'separator') return <div key={index} style={{width: '100%', height: '1px', backgroundColor: color || '#E5E7EB', margin: margin ? (spaceMap[margin] || margin) + ' 0' : '8px 0'}} />;
+                if (type === 'filler') return <div key={index} style={{flex: 1}} />;
+                return null;
+            };
+
             return (
                 <div className="relative group/carousel w-full">
-                    {/* ปุ่มลูกศรซ้าย */}
+                    {/* ปุ่มซ้าย */}
                     <button 
-                        onClick={() => scroll(-310)}
+                        onClick={() => scroll(-280)} 
                         className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
                             ${canScrollLeft ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}
                     >
-                        <Icon name="chevron-left" size={28} />
+                        <Icon name="chevron-left" size={30} />
                     </button>
 
                     {/* Container ของ Carousel */}
                     <div ref={scrollRef} className="flex overflow-x-auto py-2 gap-3 snap-x w-full hide-scroll pl-1 scroll-smooth">
                         {json.contents.map((bubble, i) => {
                             const isCover = i === 0;
-                            // --- Logic การ Render การ์ด Cover ---
+
+                            // --- 1. Bubble 1 (Cover) : ใช้ Logic เดิม เพื่อความเป๊ะของกราฟิก ---
                             if (isCover) {
                                 const bodyContents = bubble.body.contents;
-                                const heroImg = bubble.hero?.url;
+                                const heroImg = bubble.header?.contents?.[0]?.url || ""; 
                                 const bgPatternUrl = bodyContents[0]?.url;
                                 const titleImgUrl = bodyContents[2]?.url; 
-                                const dateText = bodyContents[3]?.text;
+                                const dateText = bodyContents[3]?.text || (bodyContents[3]?.contents ? bodyContents[3].contents[0].text : "");
                                 const mascotUrl = bodyContents[4]?.url;
                                 const bgGradient = bubble.body.background;
                                 const gradientStyle = bgGradient ? { background: `linear-gradient(${bgGradient.angle}, ${bgGradient.startColor}, ${bgGradient.endColor})` } : {};
 
                                 return (
-                                    <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col" style={{height: '320px', aspectRatio: '3/4'}}>
-                                        <div className="bg-white pt-2 pb-2 flex justify-center items-center h-[35px]">
-                                            <img src={heroImg} className="w-[150px] object-contain" />
+                                    // [UPDATED] บังคับความสูง 320px
+                                    <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col bg-white" style={{height: '320px', aspectRatio: '3/4'}}>
+                                        {/* Header (Logo) */}
+                                        <div className="bg-white pt-/ pb-2 flex justify-center items-center h-[35px] relative z-20">
+                                            <img src={heroImg} className="h-[30px] object-contain" />
                                         </div>
+                                        {/* Body (Gradient + Graphics) */}
                                         <div className="flex-1 relative overflow-hidden" style={gradientStyle}>
                                             <div className="relative w-full h-full">
                                                 <img src={bgPatternUrl} className="absolute w-full h-full object-cover z-0" />
@@ -367,7 +455,7 @@ const Type3CarouselRenderer = ({ json }) => {
                                                     <div className="absolute w-full text-center z-20" style={{top: '70px'}}>
                                                         <p className="text-[10px] font-bold text-white drop-shadow-md">ประจำงวดวันที่ 16 พฤศจิกายน 2568</p>
                                                     </div>
-                                                    <img src={mascotUrl} className="absolute w-[60%] object-contain z-30 py-[80px]" style={{bottom: '-35px'}} />
+                                                    <img src={mascotUrl} className="absolute w-[60%] object-contain z-30 py-[80px]" style={{bottom: '-50px'}} />
                                                 </div>
                                             </div>
                                         </div>
@@ -375,79 +463,40 @@ const Type3CarouselRenderer = ({ json }) => {
                                 );
                             }
 
-                            // --- Logic การ Render การ์ดปกติ ---
-                            const contentBoxes = findWhiteBoxes(bubble.body);
-                            const warningText = findWarningText(bubble.body) || "";
-
-                            if (contentBoxes.length === 0) return <div key={i} className="w-[260px] h-[420px] bg-red-50 flex items-center justify-center text-red-400">No Content</div>;
-
+                            // --- 2. Bubble 2, 3... (Content) : ใช้ Recursive Renderer ตาม JSON ---
                             return (
-                                <div key={i} className="flex-shrink-0 snap-center bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col" style={{height: '320px', aspectRatio: '3/4'}}>
-                                    <div className="flex-1 overflow-y-auto hide-scroll p-4 space-y-4">
-                                        {contentBoxes.map((contentBox, boxIdx) => {
-                                            const innerContents = contentBox.contents || [];
-                                            const headerBox = innerContents[0];
-                                            let headerLogoUrl = null;
-                                            let headerGradient = null;
-                                            if (headerBox.type === 'image') {
-                                                headerLogoUrl = headerBox.url;
-                                            } else {
-                                                headerLogoUrl = findImageUrl(headerBox);
-                                                headerGradient = headerBox.background;
-                                            }
-                                            const headerStyle = headerGradient ? { background: `linear-gradient(${headerGradient.angle}, ${headerGradient.startColor}, ${headerGradient.endColor})` } : { backgroundColor: '#ffffff' };
-                                            const restNodes = innerContents.slice(1);
-                                            let allTexts = [];
-                                            restNodes.forEach(n => { allTexts = [...allTexts, ...findTexts(n)]; });
-                                            allTexts = allTexts.filter(t => t && t.trim().length > 0);
-                                            const numbers = [];
-                                            let labelText = "";
-                                            allTexts.forEach(txt => {
-                                                if (/^\d+$/.test(txt)) { numbers.push(txt); } else { labelText = txt; }
-                                            });
-
-                                            return (
-                                                <div key={boxIdx} className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 flex flex-col">
-                                                    {/* Header: ลด Padding ล่าง (pb-0) เพื่อให้รูปชิดขอบล่างมากขึ้น */}
-                                                    <div className="p-3 pb-0 relative h-[60px] flex items-center justify-center overflow-hidden" style={headerStyle}>
-                                                        {headerLogoUrl ? <img src={headerLogoUrl} className={`${headerGradient ? 'w-[70%]' : 'w-full'} h-full object-contain relative z-10`} /> : null}
-                                                        {headerGradient && <div className="absolute inset-2 border border-white/20 rounded-lg pointer-events-none"></div>}
-                                                    </div>
-                                                    
-                                                    {/* Body: ลด Padding บน (pt-0) เพื่อดึงข้อความขึ้นไปใกล้รูป */}
-                                                    <div className="px-4 pb-4 pt-0 flex flex-col items-center gap-1 bg-slate-50/50">
-                                                        <div className="flex w-full justify-center gap-4 px-2">
-                                                            {numbers.slice(0, 2).map((t, idx) => (
-                                                                <span key={idx} className="text-2xl font-bold text-slate-800 tracking-wider">{t}</span>
-                                                            ))}
-                                                        </div>
-                                                        {numbers.length > 2 && <div className="w-1/2 h-[1px] bg-slate-200"></div>}
-                                                        <div className="flex w-full justify-center gap-2 px-2 flex-wrap">
-                                                            {numbers.slice(2).map((t, idx) => (
-                                                                <span key={idx} className="text-sm font-bold text-slate-600 bg-white px-1 rounded shadow-sm border border-slate-100 min-w-[20px] text-center">{t}</span>
-                                                            ))}
-                                                        </div>
-                                                        {labelText && <span className="text-xs font-bold text-slate-600 mt-1">{labelText}</span>}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                    <div className="h-6 w-full relative">
-                                        {warningText && <p className="text-[9px] text-slate-400 absolute bottom-1 right-2 text-right w-full">{warningText}</p>}
-                                    </div>
+                                <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col bg-white" style={{height: '320px', aspectRatio: '3/4'}}>
+                                    {/* Header */}
+                                    {bubble.header && (
+                                        <div className="w-full flex-shrink-0">
+                                            {renderFlexComponent(bubble.header, 'header')}
+                                        </div>
+                                    )}
+                                    {/* Body */}
+                                    {/* [UPDATED] ใช้ overflow-y-auto hide-scroll เพื่อให้เนื้อหาไม่ถูกตัดถ้ายาวเกิน 320px แต่ยังคงความสูง Card ไว้ */}
+                                    {bubble.body && (
+                                        <div className="flex-1 w-full h-full relative overflow-y-auto hide-scroll">
+                                             {renderFlexComponent(bubble.body, 'body')}
+                                        </div>
+                                    )}
+                                    {/* Footer */}
+                                    {bubble.footer && (
+                                        <div className="w-full flex-shrink-0 absolute bottom-0 left-0 right-0 p-2 pointer-events-none">
+                                            {renderFlexComponent(bubble.footer, 'footer')}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
                     </div>
 
-                    {/* ปุ่มลูกศรขวา */}
+                    {/* ปุ่มขวา */}
                     <button 
-                        onClick={() => scroll(310)}
+                        onClick={() => scroll(280)} 
                         className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
                             ${canScrollRight ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}
                     >
-                        <Icon name="chevron-right" size={28} />
+                        <Icon name="chevron-right" size={30} />
                     </button>
                 </div>
             );
@@ -601,7 +650,7 @@ const Type3CarouselRenderer = ({ json }) => {
             headerStyle.height = 'auto'; // ให้สูงตามรูปภาพ
 
             return (
-                <div className="bg-white w-full h-[500px] border border-slate-200 shadow-sm rounded-md overflow-hidden flex flex-col">
+                <div className="bg-white w-full h-[500px] border border-slate-200 shadow-sm rounded-xl overflow-hidden flex flex-col">
                     {/* Header: ปรับให้เหมือน Type 1 คือรูปเต็มพื้นที่ (แต่มี BG Gradient รองหลัง) */}
                     {json.header && (
                         <div style={headerStyle} className="flex flex-col justify-center items-center relative flex-shrink-0 w-full">
@@ -701,7 +750,7 @@ const Type3CarouselRenderer = ({ json }) => {
             const steps = stepsContainer?.contents?.filter(c => c.type === "box" && c.layout === "vertical") || [];
 
             return (
-                <div className="bg-[#f9f5f2] w-full border border-slate-200 shadow-sm rounded-md overflow-hidden flex flex-col">
+                <div className="bg-[#f9f5f2] w-full border border-slate-200 rounded-xl shadow-sm rounded-md overflow-hidden flex flex-col">
                     {/* Hero (Video Section) */}
                     {json.hero && (
                         <div className="relative w-full bg-black">
@@ -831,7 +880,7 @@ const Type3CarouselRenderer = ({ json }) => {
         // --- Pages ---
         const Navbar = ({ setPage, currentPage }) => (
             <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 z-50 px-6 py-4 flex justify-between items-center">
-                <div className="text-[35px] font-bold bg-gradient-to-r from-black to-red-600 bg-clip-text text-transparent cursor-pointer" onClick={() => setPage('home')}>TEST</div>
+                <div className="text-[35px] font-bold bg-gradient-to-r from-black to-red-600 bg-clip-text text-transparent cursor-pointer" onClick={() => setPage('home')}>FLEX LINE BROADCAST</div>
                 <div className="space-x-2 hidden md:block">
                     {['home', 'flex', 'platform'].map(p => (
                         <button key={p} onClick={() => setPage(p)} className={`px-4 py-2 rounded-full text-sm font-medium transition capitalize ${currentPage === p ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>{p}</button>
@@ -989,6 +1038,10 @@ const Type3CarouselRenderer = ({ json }) => {
     }
   ]
 };
+
+
+
+
             const lotteryJson3 = {
             "type": "carousel",
             "contents": [
@@ -1262,10 +1315,6 @@ const Type3CarouselRenderer = ({ json }) => {
                         "paddingAll": "0px"
                     },
                     {
-                        "type": "separator",
-                        "color": "#333333"
-                    },
-                    {
                         "type": "box",
                         "layout": "vertical",
                         "backgroundColor": "#ffffff",
@@ -1533,10 +1582,6 @@ const Type3CarouselRenderer = ({ json }) => {
                         "flex": 1,
                         "paddingAll": "0px",
                         "height": "190px"
-                    },
-                    {
-                        "type": "separator",
-                        "color": "#333333"
                     },
                     {
                         "type": "box",
