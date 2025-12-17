@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Portfolio - LINE Specialist</title>
     
-    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
@@ -42,7 +38,211 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // --- DATA CONSTANTS (แยกข้อมูลออกมาเพื่อให้ Component สะอาดขึ้น) ---
+        const FLEX_DATA = {
+            lotteryJson: {
+                "type": "bubble", "size": "giga",
+                "header": { "type": "box", "layout": "vertical", "contents": [{ "type": "image", "size": "full", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_background/Headband_3_black.png", "aspectMode": "fit", "aspectRatio": "5:1" }] },
+                "hero": { "type": "video", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250801_Prize_chudyai.mp4", "previewUrl": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_vdo_cover/250801_Prize_chudyai_Cover.png", "aspectRatio": "16:9" },
+                "body": { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "vertical", "contents": [
+                    { "type": "box", "layout": "horizontal", "contents": [{ "type": "box", "layout": "vertical", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_button/purchase_lottery_flex1.png" }] }, { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "ซื้อลอตเตอรี่" }, { "type": "text", "text": "กี่ใบก็มีลุ้น! โอกาสมีอยู่ทุกใบ" }] }] },
+                    { "type": "separator" },
+                    { "type": "box", "layout": "horizontal", "contents": [{ "type": "box", "layout": "vertical", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_button/purchase_jidrid_flex1.png" }] }, { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "จิ๊ดริดหยิบโชค" }, { "type": "text", "text": "ไม่มีเลขในใจ ใช้จิ๊ดริดหยิบให้เลย" }] }] },
+                    { "type": "separator" },
+                    { "type": "box", "layout": "horizontal", "contents": [{ "type": "box", "layout": "vertical", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_button/purchase_goldentime_flex1.png" }] }, { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "นาทีทอง" }, { "type": "text", "text": "นาทีนี้ใครไว ใครได้" }] }] }
+                ] }] },
+                "footer": { "type": "box", "layout": "vertical", "contents": [], "backgroundColor": "#ff0200ff" }
+            },
+            lotteryJson2: {
+                "type": "carousel",
+                "contents": [
+                    { "type": "bubble", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_01.jpg", "size": "full", "aspectMode": "cover", "aspectRatio": "3:3.2", "action": { "type": "uri", "label": "ซื้อลอตเตอรี่ที่นี่", "uri": "https://lin.ee/oV69qGV" } } },
+                    { "type": "bubble", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_02.jpg", "size": "full", "aspectMode": "cover", "aspectRatio": "3:3.2", "action": { "type": "uri", "label": "ซื้อลอตเตอรี่ที่นี่", "uri": "https://lin.ee/IcgKyUm" } } },
+                    { "type": "bubble", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_03.jpg", "aspectRatio": "3:3.2", "aspectMode": "cover", "size": "full", "action": { "type": "uri", "label": "ซื้อลอตเตอรี่ที่นี่", "uri": "https://lin.ee/pwTuVaa" } } },
+                    { "type": "bubble", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_05.jpg", "aspectRatio": "3:3.2", "aspectMode": "cover", "size": "full", "action": { "type": "uri", "label": "ซื้อลอตเตอรี่ที่นี่", "uri": "https://lin.ee/Nxyg8FL" } } },
+                    { "type": "bubble", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_10.jpg", "aspectRatio": "3:3.2", "aspectMode": "cover", "size": "full", "action": { "type": "uri", "label": "ซื้อลอตเตอรี่ที่นี่", "uri": "https://lin.ee/SeDO4Ud" } } }
+                ]
+            },
+            lotteryJson3: {
+                "type": "carousel",
+                "contents": [
+                    {
+                        "type": "bubble", "size": "mega",
+                        "header": { "type": "box", "layout": "vertical", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logolotteryplus/logo_lotteryplus_horizontal_red.png", "size": "200px", "aspectRatio": "5:1", "aspectMode": "fit" }], "spacing": "0px", "paddingAll": "0px" },
+                        "body": {
+                            "type": "box", "layout": "vertical", "spacing": "none",
+                            "contents": [
+                                { "type": "image", "position": "absolute", "size": "380px", "gravity": "center", "align": "center", "margin": "none", "offsetTop": "-120px", "offsetStart": "0px", "aspectRatio": "1:2", "offsetEnd": "0px", "aspectMode": "fit", "offsetBottom": "-120px", "action": { "type": "uri", "label": "รวมเลขเด็ดเลขดัง", "uri": "https://lin.ee/18vidat" }, "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_background/lakdung_BC_flex3.png" },
+                                { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_coolnumber/ruamlakdetlakdang.png", "position": "relative", "aspectMode": "fit", "offsetTop": "-110px", "offsetStart": "0px", "margin": "lg", "size": "full", "action": { "type": "uri", "label": "รวมเลขเด็ดเลขดัง", "uri": "https://lin.ee/18vidat" } },
+                                { "type": "text", "size": "lg", "align": "center", "color": "#ffffff", "contents": [{ "type": "span", "text": "ประจำงวดวันที่ 16 พฤศจิกายน 2568", "weight": "bold", "size": "xs" }], "weight": "bold", "position": "absolute", "gravity": "center", "offsetStart": "53px", "offsetTop": "80px" },
+                                { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_jidrid/Jidrid_122.png", "size": "3xl", "align": "center", "gravity": "center", "position": "absolute", "offsetStart": "65px", "offsetTop": "130px" }
+                            ],
+                            "background": { "type": "linearGradient", "angle": "0deg", "startColor": "#000000", "endColor": "#000000" }, "flex": 1
+                        }
+                    },
+                    {
+                        "type": "bubble", "size": "mega",
+                        "body": {
+                            "type": "box", "layout": "vertical", "cornerRadius": "xl", "height": "400px", "paddingAll": "10px",
+                            "contents": [
+                                {
+                                    "type": "box", "layout": "vertical", "backgroundColor": "#ffffff", "cornerRadius": "xl", "height": "190px", "paddingAll": "0px", "spacing": "none",
+                                    "contents": [
+                                        { "type": "box", "layout": "vertical", "contents": [], "height": "10px" },
+                                        { "type": "box", "layout": "horizontal", "cornerRadius": "md", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logo_program/lekpheehian.png", "aspectMode": "cover", "size": "full", "gravity": "center", "align": "center", "aspectRatio": "3.5:1" }], "background": { "type": "linearGradient", "angle": "170deg", "startColor": "#00000020", "endColor": "#000000", "centerColor": "#000000" } },
+                                        { "type": "box", "layout": "vertical", "height": "60px", "justifyContent": "center", "contents": [{ "type": "filler" }, { "type": "box", "layout": "horizontal", "justifyContent": "center", "flex": 1, "alignItems": "center", "height": "50px", "contents": [{ "type": "filler" }, { "type": "text", "text": "283", "weight": "bold", "size": "lg" }, { "type": "text", "text": "20", "weight": "bold", "size": "lg" }, { "type": "filler" }] }] },
+                                        { "type": "text", "align": "center", "gravity": "center", "contents": [{ "type": "span", "text": "หลอนพารวย ลูกเต๋าและปิงปองให้โชค", "size": "xs" }] }
+                                    ]
+                                },
+                                {
+                                    "type": "box", "layout": "vertical", "backgroundColor": "#ffffff", "cornerRadius": "xl", "height": "210px", "paddingAll": "0px", "spacing": "none",
+                                    "contents": [
+                                        { "type": "box", "layout": "vertical", "contents": [], "height": "20px" },
+                                        { "type": "box", "layout": "horizontal", "cornerRadius": "md", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logo_program/patithinjeen.png", "aspectMode": "cover", "size": "full", "gravity": "center", "align": "center", "aspectRatio": "3.5:1" }] },
+                                        { "type": "box", "layout": "vertical", "height": "60px", "justifyContent": "center", "contents": [{ "type": "filler" }, { "type": "box", "layout": "horizontal", "justifyContent": "center", "flex": 1, "alignItems": "center", "height": "50px", "contents": [{ "type": "filler" }, { "type": "text", "text": "2", "weight": "bold", "size": "lg" }, { "type": "text", "text": "6", "weight": "bold", "size": "lg" }, { "type": "text", "text": "3", "weight": "bold", "size": "lg" }, { "type": "text", "text": "5", "weight": "bold", "size": "lg" }, { "type": "filler" }] }] },
+                                        { "type": "text", "align": "center", "gravity": "center", "contents": [{ "type": "span", "text": "งวดนี้ไม่ธรรมดา ต้องมีติดตู้เซฟไว้", "size": "xs" }] }
+                                    ]
+                                }
+                            ]
+                        },
+                        "footer": { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "**เป็นความเชื่อส่วนบุคคล", "size": "xxs", "adjustMode": "shrink-to-fit", "align": "end" }] }
+                    },
+                    {
+                        "type": "bubble", "size": "mega",
+                        "body": {
+                            "type": "box", "layout": "vertical", "cornerRadius": "xl", "height": "400px", "paddingAll": "10px",
+                            "contents": [
+                                {
+                                    "type": "box", "layout": "vertical", "backgroundColor": "#ffffff", "cornerRadius": "xl", "height": "190px", "paddingAll": "0px", "flex": 1, "spacing": "none",
+                                    "contents": [
+                                        { "type": "box", "layout": "vertical", "contents": [], "height": "10px" },
+                                        { "type": "box", "layout": "horizontal", "cornerRadius": "md", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logo_program/maetukta.png", "aspectMode": "cover", "size": "full", "gravity": "center", "align": "center", "aspectRatio": "3.5:1" }] },
+                                        { "type": "box", "layout": "vertical", "height": "60px", "justifyContent": "center", "contents": [{ "type": "filler" }, { "type": "box", "layout": "horizontal", "justifyContent": "center", "flex": 1, "alignItems": "center", "height": "50px", "contents": [{ "type": "filler" }, { "type": "text", "text": "2", "weight": "bold", "size": "lg" }, { "type": "text", "text": "9", "weight": "bold", "size": "lg" }, { "type": "text", "text": "4", "weight": "bold", "size": "lg" }, { "type": "text", "text": "7", "weight": "bold", "size": "lg" }, { "type": "text", "text": "0", "weight": "bold", "size": "lg" }, { "type": "filler" }] }] },
+                                        { "type": "text", "align": "center", "gravity": "center", "contents": [{ "type": "span", "text": "พาเข้ามาแล้วหลายงวด", "size": "xs" }] }
+                                    ]
+                                },
+                                {
+                                    "type": "box", "layout": "vertical", "backgroundColor": "#ffffff", "cornerRadius": "xl", "height": "210px", "paddingAll": "0px", "flex": 1, "spacing": "none",
+                                    "contents": [
+                                        { "type": "box", "layout": "vertical", "contents": [], "height": "20px" },
+                                        { "type": "box", "layout": "horizontal", "cornerRadius": "md", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logo_program/lekai.png", "aspectMode": "cover", "size": "full", "gravity": "center", "align": "center", "aspectRatio": "3.5:1" }] },
+                                        { "type": "box", "layout": "vertical", "height": "60px", "justifyContent": "center", "contents": [{ "type": "filler" }, { "type": "box", "layout": "horizontal", "justifyContent": "center", "contents": [{ "type": "filler" }, { "type": "text", "text": "15", "weight": "bold", "size": "lg" }, { "type": "text", "text": "63", "weight": "bold", "size": "lg" }, { "type": "text", "text": "89", "weight": "bold", "size": "lg" }, { "type": "text", "text": "07", "weight": "bold", "size": "lg" }, { "type": "text", "text": "42", "weight": "bold", "size": "lg" }, { "type": "filler" }], "flex": 1, "alignItems": "center", "height": "25px" }, { "type": "box", "layout": "horizontal", "justifyContent": "center", "contents": [{ "type": "filler" }, { "type": "text", "text": "30", "weight": "bold", "size": "lg" }, { "type": "text", "text": "56", "weight": "bold", "size": "lg" }, { "type": "text", "text": "92", "weight": "bold", "size": "lg" }, { "type": "text", "text": "24", "weight": "bold", "size": "lg" }, { "type": "text", "text": "78", "weight": "bold", "size": "lg" }, { "type": "filler" }], "flex": 1, "alignItems": "center", "height": "25px" }] },
+                                        { "type": "text", "align": "center", "gravity": "center", "contents": [{ "type": "span", "text": "สายตัวเลข ไม่ควรพลาด", "size": "xs" }] }
+                                    ]
+                                }
+                            ]
+                        },
+                        "footer": { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "**เป็นความเชื่อส่วนบุคคล", "size": "xxs", "adjustMode": "shrink-to-fit", "align": "end" }] }
+                    }
+                ]
+            },
+            lotteryJson4: {
+                "type": "bubble", "size": "mega",
+                "header": { "type": "box", "layout": "vertical", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logolotteryplus/logo_lotteryplus_horizontal_white.png", "align": "start", "aspectMode": "fit", "gravity": "center", "size": "5xl", "animated": true, "aspectRatio": "6:1" }], "paddingAll": "20px", "spacing": "none", "height": "65px", "paddingTop": "22px", "background": { "type": "linearGradient", "angle": "330deg", "startColor": "#b31217", "endColor": "#ff0000", "centerColor": "#D31027" }, "justifyContent": "center" },
+                "hero": { "type": "video", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250716_Sell_Night.mp4", "previewUrl": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250716_Sell_Night.mp4", "altContent": { "type": "image", "size": "full", "aspectRatio": "16:9", "aspectMode": "cover", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_vdo_cover/250716_Sell_Night_Cover.png" }, "aspectRatio": "16:9" },
+                "body": {
+                    "type": "box", "layout": "vertical", "margin": "lg",
+                    "contents": [
+                        { "type": "text", "text": "วิธีสมัครสมาชิก", "color": "#b7b7b7", "size": "xs", "style": "italic", "decoration": "underline", "margin": "md" },
+                        { "type": "box", "layout": "horizontal", "spacing": "sm", "margin": "xl", "alignItems": "center", "contents": [{ "type": "text", "text": "Step 1", "size": "xs", "gravity": "center", "color": "#EF454D", "weight": "bold", "flex": 1, "align": "end" }, { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "vertical", "contents": [], "cornerRadius": "30px", "height": "12px", "width": "12px", "borderColor": "#B7B7B7", "borderWidth": "2px" }], "width": "24px", "alignItems": "center", "justifyContent": "center" }, { "type": "text", "text": "เลือกเมนู 'สมาชิก'", "gravity": "center", "flex": 4, "size": "sm", "weight": "bold", "margin": "sm" }] },
+                        { "type": "box", "layout": "horizontal", "spacing": "sm", "contents": [{ "type": "filler", "flex": 1 }, { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "vertical", "contents": [], "width": "2px", "backgroundColor": "#B7B7B7", "height": "40px" }], "width": "24px", "alignItems": "center" }, { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "กด 'ตกลง' ระะบบจะไปที่ LINE", "color": "#8c8c8c", "size": "xs", "gravity": "center", "wrap": true }, { "type": "text", "text": "กด 'อนุญาต'", "color": "#8c8c8c", "size": "xs", "gravity": "center", "wrap": true }], "flex": 4, "justifyContent": "center", "margin": "sm" }] },
+                        { "type": "box", "layout": "horizontal", "spacing": "sm", "alignItems": "center", "contents": [{ "type": "text", "text": "Step 2", "gravity": "center", "size": "xs", "weight": "bold", "color": "#EF454D", "flex": 1, "align": "end" }, { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "vertical", "contents": [], "cornerRadius": "30px", "width": "12px", "height": "12px", "borderColor": "#EF454D", "borderWidth": "2px" }], "width": "24px", "alignItems": "center", "justifyContent": "center" }, { "type": "text", "text": "เพิ่มเพื่อน LINE Official", "gravity": "center", "flex": 4, "size": "sm", "weight": "bold", "margin": "sm" }] },
+                        { "type": "box", "layout": "horizontal", "spacing": "sm", "alignItems": "center", "contents": [{ "type": "filler", "flex": 1 }, { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "vertical", "contents": [], "width": "2px", "backgroundColor": "#EF454D", "background": { "type": "linearGradient", "angle": "0deg", "startColor": "#b31217", "endColor": "#ff0000", "centerColor": "#D31027" }, "height": "30px" }], "width": "24px", "alignItems": "center" }, { "type": "text", "text": "กรอกข้อมูลส่วนตัวให้ครบถ้วน", "gravity": "center", "flex": 4, "size": "xs", "color": "#8c8c8c", "margin": "sm" }] },
+                        { "type": "box", "layout": "horizontal", "spacing": "sm", "alignItems": "center", "contents": [{ "type": "text", "text": "Step 3", "gravity": "center", "size": "xs", "color": "#EF454D", "weight": "bold", "flex": 1, "align": "end" }, { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "vertical", "contents": [], "cornerRadius": "30px", "width": "12px", "height": "12px", "borderColor": "#EF454D", "borderWidth": "2px", "backgroundColor": "#EF454D" }], "width": "24px", "alignItems": "center", "justifyContent": "center" }, { "type": "text", "text": "กด 'ลงทะเบียน'", "gravity": "center", "flex": 4, "size": "sm", "weight": "bold", "margin": "sm" }] }
+                    ]
+                },
+                "footer": {
+                    "type": "box", "layout": "vertical", "alignItems": "center",
+                    "contents": [
+                        { "type": "filler" },
+                        { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "สมัครเลย", "weight": "bold", "color": "#ffffff", "offsetBottom": "1px" }], "backgroundColor": "#ff0000cc", "cornerRadius": "10px", "justifyContent": "center", "alignItems": "center", "width": "250px", "height": "45px", "background": { "type": "linearGradient", "angle": "330deg", "startColor": "#b31217cc", "endColor": "#ff0000cc", "centerColor": "#D31027cc" }, "action": { "type": "uri", "label": "action", "uri": "https://liff.line.me/1660835514-6pJ95rZ1" } },
+                        { "type": "filler" }
+                    ]
+                }
+            },
+            lotteryJson5: {
+                "type": "bubble", "size": "mega",
+                "hero": {
+                    "type": "video", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250701_Sell_lekkhaotookchuamong.mp4", "altContent": { "type": "image", "size": "full", "aspectRatio": "16:9", "aspectMode": "cover", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_vdo_cover/250701_Sell_lekkhaotookchuamong_Cover.png" },
+                    "action": { "type": "uri", "label": "กดซื้อ รางวัลที่ 1", "uri": "https://liff.line.me/1660835514-xVBgVpKd" }, "aspectRatio": "16:9", "previewUrl": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250701_Sell_lekkhaotookchuamong.mp4"
+                },
+                "body": {
+                    "type": "box", "layout": "vertical", "backgroundColor": "#f9f5f2", "contents": [
+                    {
+                        "type": "box", "layout": "vertical", "alignItems": "center", "contents": [
+                        { "type": "box", "layout": "vertical", "contents": [], "backgroundColor": "#c0c0c080", "width": "200px", "height": "3px", "justifyContent": "center", "alignItems": "center", "offsetTop": "34px", "background": { "type": "linearGradient", "angle": "90deg", "startColor": "#EAEAEA", "endColor": "#ff0000", "centerColor": "#c0c0c0" } },
+                        {
+                            "type": "box", "layout": "horizontal", "contents": [
+                            { "type": "filler", "flex": 1 },
+                            { "type": "box", "layout": "vertical", "contents": [ { "type": "box", "layout": "vertical", "contents": [ { "type": "image", "url": "https://lotterypluscdn.blob.core.windows.net/lotteryplus-icon/190.png", "size": "20px", "aspectRatio": "1:1", "aspectMode": "cover", "align": "center", "gravity": "center" } ], "backgroundColor": "#ffffff", "width": "40px", "height": "40px", "cornerRadius": "100px", "alignItems": "center", "justifyContent": "center", "borderWidth": "1.5px", "borderColor": "#ffffff" }, { "type": "text", "text": "Step 1", "size": "10px", "contents": [ { "type": "span", "text": "กดเลือกเลข ใส่ตะกร้า" } ], "wrap": true, "align": "center", "offsetTop": "15px" } ], "alignItems": "center", "cornerRadius": "100px", "flex": 2, "width": "60px", "height": "100px" },
+                            { "type": "filler" },
+                            { "type": "box", "layout": "vertical", "contents": [ { "type": "box", "layout": "vertical", "contents": [ { "type": "image", "url": "https://lotterypluscdn.blob.core.windows.net/lotteryplus-icon/190.png", "size": "20px", "aspectRatio": "1:1", "aspectMode": "cover", "align": "center", "gravity": "center" } ], "backgroundColor": "#ffffff", "width": "40px", "height": "40px", "cornerRadius": "100px", "alignItems": "center", "justifyContent": "center", "borderColor": "#ADA996", "borderWidth": "1.5px" }, { "type": "text", "text": "Step 1", "size": "10px", "contents": [ { "type": "span", "text": "เลือกช่องทาง การชำระเงิน" } ], "wrap": true, "align": "center", "offsetTop": "15px" } ], "alignItems": "center", "cornerRadius": "100px", "flex": 2, "width": "60px", "height": "100px" },
+                            { "type": "filler" },
+                            { "type": "box", "layout": "vertical", "contents": [ { "type": "box", "layout": "vertical", "contents": [ { "type": "image", "url": "https://lotterypluscdn.blob.core.windows.net/lotteryplus-icon/190.png", "size": "20px", "aspectRatio": "1:1", "aspectMode": "cover", "align": "center", "gravity": "center" } ], "backgroundColor": "#ff0000", "width": "38px", "height": "38px", "cornerRadius": "100px", "alignItems": "center", "justifyContent": "center" }, { "type": "text", "text": "Step 1", "size": "10px", "contents": [ { "type": "span", "text": "คำสั่งซื้อ สำเร็จ" } ], "wrap": true, "align": "center", "offsetTop": "15px" } ], "alignItems": "center", "cornerRadius": "100px", "flex": 2, "width": "60px", "height": "100px", "justifyContent": "center", "alignItems": "center", "offsetTop": "10px", "borderWidth": "1.5px", "borderColor": "#ff0000" },
+                            { "type": "filler" }
+                            ]
+                        }
+                        ]
+                    }
+                    ]
+                }
+            },
+            lotteryJson6: {
+                "type": "carousel",
+                "contents": [
+                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-001.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } },
+                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-002.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } },
+                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-003.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } },
+                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-004.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } },
+                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-005.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } }
+                ]
+            }
+        };
+
+        // --- CUSTOM HOOKS (ปรับปรุง Logic การ Scroll) ---
+        const useHorizontalScroll = (scrollAmount = 300) => {
+            const scrollRef = useRef(null);
+            const [canScrollLeft, setCanScrollLeft] = useState(false);
+            const [canScrollRight, setCanScrollRight] = useState(true);
+
+            const checkScroll = useCallback(() => {
+                const el = scrollRef.current;
+                if (el) {
+                    const { scrollLeft, scrollWidth, clientWidth } = el;
+                    setCanScrollLeft(scrollLeft > 1);
+                    setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+                }
+            }, []);
+
+            useEffect(() => {
+                const el = scrollRef.current;
+                checkScroll();
+                if (el) {
+                    el.addEventListener('scroll', checkScroll);
+                    window.addEventListener('resize', checkScroll);
+                }
+                return () => {
+                    if (el) el.removeEventListener('scroll', checkScroll);
+                    window.removeEventListener('resize', checkScroll);
+                };
+            }, [checkScroll]);
+
+            const scroll = (offset) => {
+                if (scrollRef.current) {
+                    scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+                }
+            };
+
+            return { 
+                scrollRef, 
+                canScrollLeft, 
+                canScrollRight, 
+                scrollLeft: () => scroll(-scrollAmount), 
+                scrollRight: () => scroll(scrollAmount) 
+            };
+        };
 
         // --- Icons ---
         const Icon = ({ name, size = 24, className }) => {
@@ -65,14 +265,14 @@
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
                     <div className="bg-slate-900 w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
                         <div className="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-800">
-                            <h3 className="text-white font-bold flex items-center"><Icon name="code" size={20} className="mr-2 text-green-400" /> {title} - JSON Source</h3>
+                            <h3 className="text-white font-bold flex items-center"><Icon name="code" size={20} className="mr-2 text-red-400" /> {title} - JSON Source</h3>
                             <button onClick={onClose} className="text-slate-400 hover:text-white"><Icon name="x" size={24} /></button>
                         </div>
                         <div className="flex-1 overflow-auto p-6 bg-[#0d1117] json-scroll">
-                            <pre className="text-sm font-mono text-green-400 leading-relaxed whitespace-pre-wrap break-all">{JSON.stringify(code, null, 2)}</pre>
+                            <pre className="text-sm font-mono text-white leading-relaxed whitespace-pre-wrap break-all">{JSON.stringify(code, null, 2)}</pre>
                         </div>
                         <div className="p-4 border-t border-slate-700 bg-slate-800 flex justify-end gap-3">
-                            <button onClick={handleCopy} className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition ${copied ? 'bg-green-600 text-white' : 'bg-slate-700 text-slate-200'}`}><Icon name={copied ? "check" : "copy"} size={16} className="mr-2" /> {copied ? "Copied!" : "Copy JSON"}</button>
+                            <button onClick={handleCopy} className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition ${copied ? 'bg-red-600 text-white' : 'bg-slate-700 text-slate-200'}`}><Icon name={copied ? "check" : "copy"} size={16} className="mr-2" /> {copied ? "Copied!" : "Copy JSON"}</button>
                             <button onClick={onClose} className="px-4 py-2 rounded-lg bg-slate-600 text-white text-sm font-medium hover:bg-slate-500">Close</button>
                         </div>
                     </div>
@@ -96,35 +296,20 @@
                 return { img: iconUrl, title, sub };
             }).filter(Boolean);
 
-            const headerRatio = json.header?.contents?.[0]?.aspectRatio 
-                ? json.header.contents[0].aspectRatio.replace(':', '/') 
-                : 'auto';
-            const heroRatio = json.hero?.aspectRatio 
-                ? json.hero.aspectRatio.replace(':', '/') 
-                : '16/9';
-            
             return (
-                <div className="bg-white w-full  h-[500px] flex flex-col rounded-xl border border-slate-200 shadow-sm mx-auto overflow-hidden rounded-md">
-{/* Header: ให้ความสูงปรับตามรูปภาพแต่ไม่ให้หด (flex-shrink-0) */}
+                <div className="bg-white w-full h-[500px] flex flex-col rounded-xl border border-slate-200 shadow-sm mx-auto overflow-hidden rounded-md">
                     {json.header?.contents?.[0]?.url && (
-                        <div className=" w-full h-[20] bg-slate-50 relative">
+                        <div className="w-full bg-slate-50 relative">
                              <img src={json.header.contents[0].url} className="w-full object-contain block" style={{aspectRatio: 20/3}} />
                         </div>
                     )}
-{/* Hero (Video Section) */}
                     {json.hero && (
                         <div className="relative w-full bg-black">
                             {json.hero.type === 'video' ? (
                                 <div className="relative w-full" style={{aspectRatio: json.hero.aspectRatio ? json.hero.aspectRatio.replace(':','/') : '16/9'}}>
                                     <img src={json.hero.altContent?.url || json.hero.previewUrl} className="w-full h-full object-cover opacity-90" />
-                                    
-                                    {/* --- ส่วน Action Overlay --- */}
-                                    {/* ปกติ: bg-black/10 (จางๆ) */}
-                                    {/* Hover: bg-black/40 (เงาเทาเข้มขึ้นเต็มหน้าจอ) */}
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer">
-                                        {/* ปุ่ม Play: ให้ขยายเล็กน้อย แต่ไม่ต้องมีเงาแยกต่างหากแล้ว เพราะ Overlay ทำหน้าที่บอกสถานะ Hover แล้ว */}
-                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
-                                                        transition-transform duration-300 group-hover:scale-110">
+                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  transition-transform duration-300 group-hover:scale-110">
                                             <Icon name="play" size={25} className="text-white fill-white ml-1" />
                                         </div>
                                     </div>
@@ -137,7 +322,7 @@
                     <div className="flex flex-col">
                         {items.map((item, i) => (
                             <div key={i} className="flex items-center p-4 gap-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors cursor-pointer group">
-                                <div className="w-[70px] h-[60px] flex-shrink-0 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:border-green-200 transition-colors overflow-hidden">
+                                <div className="w-[70px] h-[60px] flex-shrink-0 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100  transition-colors overflow-hidden">
                                     <img src={item.img} className="w-full h-full object-contain" />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -155,127 +340,37 @@
             );
         };
 
-
-
-
         const Type2CarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
-
-            const scrollRef = React.useRef(null);
-            const [canScrollLeft, setCanScrollLeft] = React.useState(false);
-            const [canScrollRight, setCanScrollRight] = React.useState(true);
-
-            // ฟังก์ชันตรวจสอบตำแหน่ง Scroll เพื่อซ่อน/แสดงปุ่ม
-            const checkScroll = () => {
-                if (scrollRef.current) {
-                    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-                    // อยู่ซ้ายสุดหรือไม่? (เผื่อค่าคลาดเคลื่อนเล็กน้อยใช้ > 1)
-                    setCanScrollLeft(scrollLeft > 1);
-                    // อยู่ขวาสุดหรือไม่? (ใช้ Math.ceil เผื่อทศนิยม)
-                    setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
-                }
-            };
-
-            // ตรวจสอบตอนโหลดครั้งแรกและตอน Scroll
-            React.useEffect(() => {
-                checkScroll();
-                const timer = setTimeout(checkScroll, 500);
-                const el = scrollRef.current;
-                if (el) {
-                    el.addEventListener('scroll', checkScroll);
-                    window.addEventListener('resize', checkScroll);
-                }
-                return () => {
-                    clearTimeout(timer);
-                    if (el) el.removeEventListener('scroll', checkScroll);
-                    window.removeEventListener('resize', checkScroll);
-                };
-            }, []);
-
-            const scroll = (offset) => {
-                if (scrollRef.current) {
-                    scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-                }
-            };
+            // ใช้ Custom Hook แทนโค้ดซ้ำๆ
+            const { scrollRef, canScrollLeft, canScrollRight, scrollLeft, scrollRight } = useHorizontalScroll(310);
 
             return (
                 <div className="relative group/carousel w-full">
-                    {/* ปุ่มลูกศรซ้าย: ขยับออกไปด้านซ้าย (-left-12) และซ่อนถ้าเลื่อนไม่ได้ */}
-                    <button 
-                        onClick={() => scroll(-310)}
-                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
-                            ${canScrollLeft ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}
-                    >
+                    <button onClick={scrollLeft} className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300 ${canScrollLeft ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}>
                         <Icon name="chevron-left" size={28} />
                     </button>
 
-                    {/* Container ของ Carousel */}
                     <div ref={scrollRef} className="flex overflow-x-auto py-2 gap-3 snap-x w-full hide-scroll pl-1 scroll-smooth">
-                        {json.contents.map((bubble, i) => {
-                            return (
-                                <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '300px', aspectRatio: '3/3.2'}}>
-                                    {bubble.hero && (
-                                        <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                                    </div>
-                                </div>
-                            )
-                        })}
+                        {json.contents.map((bubble, i) => (
+                            <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{width: '300px', aspectRatio: '3/3.2'}}>
+                                {bubble.hero && <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4"></div>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* ปุ่มลูกศรขวา: ขยับออกไปด้านขวา (-right-12) และซ่อนถ้าเลื่อนไม่ได้ */}
-                    <button 
-                        onClick={() => scroll(310)}
-                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
-                            ${canScrollRight ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}
-                    >
+                    <button onClick={scrollRight} className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300 ${canScrollRight ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}>
                         <Icon name="chevron-right" size={28} />
                     </button>
                 </div>
             )
         };
 
-
-
-
-
-const Type3CarouselRenderer = ({ json }) => {
+        const Type3CarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
-
-            // --- Scroll Logic ---
-            const scrollRef = React.useRef(null);
-            const [canScrollLeft, setCanScrollLeft] = React.useState(false);
-            const [canScrollRight, setCanScrollRight] = React.useState(true);
-
-            const checkScroll = () => {
-                if (scrollRef.current) {
-                    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-                    setCanScrollLeft(scrollLeft > 1);
-                    setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
-                }
-            };
-
-            React.useEffect(() => {
-                checkScroll();
-                const timer = setTimeout(checkScroll, 500);
-                const el = scrollRef.current;
-                if (el) {
-                    el.addEventListener('scroll', checkScroll);
-                    window.addEventListener('resize', checkScroll);
-                }
-                return () => {
-                    clearTimeout(timer);
-                    if (el) el.removeEventListener('scroll', checkScroll);
-                    window.removeEventListener('resize', checkScroll);
-                };
-            }, []);
-
-            const scroll = (offset) => {
-                if (scrollRef.current) {
-                    scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-                }
-            };
+            // ใช้ Custom Hook
+            const { scrollRef, canScrollLeft, canScrollRight, scrollLeft, scrollRight } = useHorizontalScroll(280);
 
             // --- Recursive Renderer (สำหรับ Bubble 2, 3...) ---
             const renderFlexComponent = (component, index) => {
@@ -293,13 +388,10 @@ const Type3CarouselRenderer = ({ json }) => {
                 }
 
                 if (backgroundColor) style.backgroundColor = backgroundColor;
-                
                 if (cornerRadius) {
                      const radiusMap = { xs: '2px', sm: '4px', md: '8px', lg: '12px', xl: '16px', xxl: '20px' };
                      style.borderRadius = radiusMap[cornerRadius] || cornerRadius;
                 }
-
-                
                 if (component.background && component.background.type === 'linearGradient') {
                     style.background = `linear-gradient(${component.background.angle || '0deg'}, ${component.background.startColor}, ${component.background.endColor})`;
                 }
@@ -319,17 +411,12 @@ const Type3CarouselRenderer = ({ json }) => {
                 }
 
                 const spaceMap = { xs: '8px', sm: '12px', md: '16px', lg: '50px', xl: '60px', xxl: '70px' };
-                
                 if (margin) style.marginTop = spaceMap[margin] || margin;
                 if (paddingAll) style.padding = spaceMap[paddingAll] || paddingAll;
                 
                 const isClickable = !!action;
                 const ElementType = isClickable ? 'a' : 'div';
-                const actionProps = isClickable ? {
-                    href: action.uri,
-                    target: '_blank',
-                    className: 'cursor-pointer hover:opacity-90 transition-opacity block'
-                } : {};
+                const actionProps = isClickable ? { href: action.uri, target: '_blank', className: 'cursor-pointer hover:opacity-90 transition-opacity block' } : {};
 
                 if (type === 'box') {
                     style.display = 'flex';
@@ -341,14 +428,9 @@ const Type3CarouselRenderer = ({ json }) => {
                     if (component.alignItems === 'center') style.alignItems = 'center';
                     if (component.alignItems === 'flex-end') style.alignItems = 'flex-end';
 
-                    if (spacing) {
-                        style.gap = spaceMap[spacing] || spacing;
-                    } else if (layout === 'horizontal') {
-                        style.gap = '8px'; 
-                    } 
+                    if (spacing) style.gap = spaceMap[spacing] || spacing;
+                    else if (layout === 'horizontal') style.gap = '8px'; 
 
-                    const overflowClass = cornerRadius ? 'overflow-hidden' : '';
-                    
                     return (
                         <ElementType key={index} className={`${className} overflow-hidden`} style={style} {...actionProps}>
                             {contents && contents.map((child, i) => renderFlexComponent(child, i))}
@@ -392,17 +474,11 @@ const Type3CarouselRenderer = ({ json }) => {
                 if (type === 'image') {
                     style.objectFit = aspectMode === 'cover' ? 'cover' : 'contain';
                     if (aspectRatio) style.aspectRatio = aspectRatio.replace(':', '/');
-                    if (size === 'full') style.width = '100%';
-                    else if (size) style.width = size;
-                    
+                    if (size === 'full') style.width = '100%'; else if (size) style.width = size;
                     style.flexShrink = 0; 
 
                     if (isClickable) {
-                         return (
-                             <a key={index} {...actionProps} className={`${className} block`}>
-                                 <img src={url} style={style} className="block w-full h-full" loading="lazy" />
-                             </a>
-                         );
+                         return <a key={index} {...actionProps} className={`${className} block`}><img src={url} style={style} className="block w-full h-full" loading="lazy" /></a>;
                     }
                     return <img key={index} src={url} className={className} style={style} loading="lazy" />;
                 }
@@ -414,39 +490,31 @@ const Type3CarouselRenderer = ({ json }) => {
 
             return (
                 <div className="relative group/carousel w-full">
-                    {/* ปุ่มซ้าย */}
-                    <button 
-                        onClick={() => scroll(-280)} 
-                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
-                            ${canScrollLeft ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}
-                    >
+                    <button onClick={scrollLeft} className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300 ${canScrollLeft ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}>
                         <Icon name="chevron-left" size={30} />
                     </button>
 
-                    {/* Container ของ Carousel */}
                     <div ref={scrollRef} className="flex overflow-x-auto py-2 gap-3 snap-x w-full hide-scroll pl-1 scroll-smooth">
                         {json.contents.map((bubble, i) => {
                             const isCover = i === 0;
-
-                            // --- 1. Bubble 1 (Cover) : ใช้ Logic เดิม เพื่อความเป๊ะของกราฟิก ---
                             if (isCover) {
                                 const bodyContents = bubble.body.contents;
                                 const heroImg = bubble.header?.contents?.[0]?.url || ""; 
                                 const bgPatternUrl = bodyContents[0]?.url;
-                                const titleImgUrl = bodyContents[2]?.url; 
-                                const dateText = bodyContents[3]?.text || (bodyContents[3]?.contents ? bodyContents[3].contents[0].text : "");
-                                const mascotUrl = bodyContents[4]?.url;
+                                const titleImgUrl = bodyContents[1]?.url; 
+                                const dateText = bodyContents[2]?.text || (bodyContents[2]?.contents ? bodyContents[2].contents[0].text : "");
+                                const mascotUrl = bodyContents[3]?.url;
                                 const bgGradient = bubble.body.background;
                                 const gradientStyle = bgGradient ? { background: `linear-gradient(${bgGradient.angle}, ${bgGradient.startColor}, ${bgGradient.endColor})` } : {};
 
                                 return (
-                                    // [UPDATED] บังคับความสูง 320px
+
                                     <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col bg-white" style={{height: '320px', aspectRatio: '3/4'}}>
-                                        {/* Header (Logo) */}
-                                        <div className="bg-white pt-/ pb-2 flex justify-center items-center h-[35px] relative z-20">
+
+                                        <div className="bg-white pt-1 flex justify-center items-center h-[35px] relative z-20">
                                             <img src={heroImg} className="h-[30px] object-contain" />
                                         </div>
-                                        {/* Body (Gradient + Graphics) */}
+
                                         <div className="flex-1 relative overflow-hidden" style={gradientStyle}>
                                             <div className="relative w-full h-full">
                                                 <img src={bgPatternUrl} className="absolute w-full h-full object-cover z-0" />
@@ -463,70 +531,137 @@ const Type3CarouselRenderer = ({ json }) => {
                                 );
                             }
 
-                            // --- 2. Bubble 2, 3... (Content) : ใช้ Recursive Renderer ตาม JSON ---
+                            // ... (code ของ isCover เดิม) ...
+                             else if (i === 1 || i === 2) {
+                                // --- Pattern สำหรับ Bubble 2 และ 3 (Lucky Number Cards) ---
+                                const bodyContents = bubble.body.contents;
+                                
+                                // ฟังก์ชัน Helper สำหรับดึงข้อมูลจากแต่ละการ์ดย่อย (บน/ล่าง)
+                                const getCardData = (cardIndex) => {
+                                    const card = bodyContents[cardIndex];
+                                    if (!card) return null;
+                                    
+                                    // 1. ดึง Logo Header
+                                    // box -> box(horizontal) -> image
+                                    const headerUrl = card.contents?.[1]?.contents?.[0]?.url || "";
+                                    
+                                    // 2. ดึงชุดตัวเลข (Numbers)
+                                    // เนื่องจากบางการ์ดมีเลข 1 แถว บางการ์ดมี 2 แถว เราจะดึง Box ที่เก็บเลขทั้งหมดออกมา
+                                    const numberRows = [];
+                                    // เช็คตำแหน่ง contents[2] ว่าเป็น Container ของเลขหรือไม่
+                                    const rowsContainer = card.contents?.[2]?.contents || [];
+                                    
+                                    rowsContainer.forEach(row => {
+                                        // ในแต่ละแถว (Row) ให้ดึงเฉพาะที่เป็น Text ตัวเลขออกมา (ข้าม Filler)
+                                        if (row.type === 'box' && row.layout === 'horizontal') {
+                                            const numbers = row.contents
+                                                .filter(c => c.type === 'text')
+                                                .map(c => ({ text: c.text, color: c.color || '#000000', weight: c.weight }));
+                                            if (numbers.length > 0) numberRows.push(numbers);
+                                        }
+                                    });
+
+                                    // 3. ดึงคำบรรยายด้านล่าง (Footer Desc)
+                                    const desc = card.contents?.[3]?.contents?.[0]?.text || "";
+                                    
+                                    return { headerUrl, numberRows, desc };
+                                };
+
+                                const topCard = getCardData(0);
+                                const bottomCard = getCardData(1);
+
+                                return (
+                                    <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col bg-slate-50" style={{height: '320px', aspectRatio: '3/4'}}>
+                                        {/* Container หลัก ใช้ overflow-y-auto เพื่อให้ Scroll ได้ถ้าเนื้อหายาวเกิน */}
+                                        <div className="flex-1 p-2 pt-2 space-y-2 overflow-hidden hide-scroll" style={{height: '150px'}}>
+                                            
+                                            {/* --- การ์ดใบที่ 1 (บน) --- */}
+                                            {topCard && (
+                                                <div className="bg-white rounded-xl  p-0 overflow-hidden border border-slate-100 shadow-sm flex flex-col">
+                                                    {/* Header Gradient & Logo */}
+                                                    <div className="h-full w-full relative flex justify-center items-center shadow-sm bg-gradient-to-br from-slate-50 to-slate-100">
+                                                        <img src={topCard.headerUrl} className="h-full w-full object-contain relative z-10" />
+                                                    </div>
+                                                    
+                                                    {/* Numbers Area */}
+                                                    <div className="pt-1 flex flex-col gap-1 justify-center items-center min-h-[50px]">
+                                                        {topCard.numberRows.map((row, rIdx) => (
+                                                            <div key={rIdx} className="flex gap-2 justify-center items-center">
+                                                                {row.map((num, nIdx) => (
+                                                                    <span key={nIdx} className="text-md font-bold text-slate-600 justify-center items-center leading-none">{num.text}</span>
+                                                                ))}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    
+                                                    {/* Footer Description */}
+                                                    <div className="pb-2 px-2 text-center">
+                                                        <p className="text-[10px] text-slate-500 truncate">{topCard.desc}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* --- การ์ดใบที่ 2 (ล่าง) --- */}
+                                            {bottomCard && (
+                                                <div className="bg-white rounded-xl p-0 overflow-hidden border border-slate-100 shadow-sm flex flex-col">
+                                                    {/* Header Gradient & Logo */}
+                                                    <div className="h-full w-full relative flex justify-center items-center shadow-sm bg-gradient-to-br from-slate-50 to-slate-100">
+                                                        <img src={bottomCard.headerUrl} className="h-full w-full object-contain relative z-10" />
+                                                    </div>
+                                                    
+                                                    {/* Numbers Area */}
+                                                    <div className="pt-1 flex flex-col gap-1 justify-center items-center min-h-[50px]">
+                                                        {bottomCard.numberRows.map((row, rIdx) => (
+                                                            <div key={rIdx} className="flex gap-2 justify-center items-center">
+                                                                {row.map((num, nIdx) => (
+                                                                    <span key={nIdx} className="text-md font-bold text-slate-600 justify-center items-center leading-none">{num.text}</span>
+                                                                ))}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    
+                                                    {/* Footer Description */}
+                                                    <div className="pb-2 px-2 text-right">
+                                                        <p className="text-[10px] text-slate-500 truncate">{bottomCard.desc}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+                                        </div>
+                                        
+                                        {/* Footer หมายเหตุ (ถ้ามี) */}
+                                        <div className="bg-white p-1 text-right border-t border-slate-100">
+                                             <p className="text-[9px] text-slate-400 pr-2">**เป็นความเชื่อส่วนบุคคล</p>
+                                        </div>
+                                    </div>
+                                );
+                            }
+
                             return (
                                 <div key={i} className="flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative flex flex-col bg-white" style={{height: '320px', aspectRatio: '3/4'}}>
-                                    {/* Header */}
-                                    {bubble.header && (
-                                        <div className="w-full flex-shrink-0">
-                                            {renderFlexComponent(bubble.header, 'header')}
-                                        </div>
-                                    )}
-                                    {/* Body */}
-                                    {/* [UPDATED] ใช้ overflow-y-auto hide-scroll เพื่อให้เนื้อหาไม่ถูกตัดถ้ายาวเกิน 320px แต่ยังคงความสูง Card ไว้ */}
-                                    {bubble.body && (
-                                        <div className="flex-1 w-full h-full relative overflow-hidden space-y-2">
-                                             {renderFlexComponent(bubble.body, 'body')}
-                                        </div>
-                                    )}
-                                    {/* Footer */}
-                                    {bubble.footer && (
-                                        <div className="w-full flex-shrink-0 absolute bottom-0 left-0 right-0 p-2 pointer-events-none">
-                                            {renderFlexComponent(bubble.footer, 'footer')}
-                                        </div>
-                                    )}
+                                    {bubble.header && <div className="w-full flex-shrink-0">{renderFlexComponent(bubble.header, 'header')}</div>}
+                                    {bubble.body && <div className="flex-1 w-full h-full relative overflow-hidden space-y-2">{renderFlexComponent(bubble.body, 'body')}</div>}
+                                    {bubble.footer && <div className="w-full flex-shrink-0 absolute bottom-0 left-0 right-0 p-2 pointer-events-none">{renderFlexComponent(bubble.footer, 'footer')}</div>}
                                 </div>
                             );
                         })}
                     </div>
 
-                    {/* ปุ่มขวา */}
-                    <button 
-                        onClick={() => scroll(280)} 
-                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
-                            ${canScrollRight ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}
-                    >
+                    <button onClick={scrollRight} className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300 ${canScrollRight ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}>
                         <Icon name="chevron-right" size={30} />
                     </button>
                 </div>
             );
         };
 
-                                
-        
-        
-        
-
         const Type4StepRenderer = ({ json }) => {
             if (!json) return null;
-
-            // Helper สำหรับหา Aspect Ratio ของ Header Image (เหมือน Type 1)
-            const headerRatio = json.header?.contents?.[0]?.aspectRatio 
-                ? json.header.contents[0].aspectRatio.replace(':', '/') 
-                : 'auto';
-
+            
             const renderNode = (node, index) => {
                 if (!node) return null;
                 const key = index;
-
                 let style = {
-                    flex: node.flex,
-                    width: node.width,
-                    height: node.height,
-                    backgroundColor: node.backgroundColor,
-                    borderRadius: node.cornerRadius,
-                    borderColor: node.borderColor,
-                    borderWidth: node.borderWidth,
+                    flex: node.flex, width: node.width, height: node.height, backgroundColor: node.backgroundColor, borderRadius: node.cornerRadius, borderColor: node.borderColor, borderWidth: node.borderWidth,
                 };
 
                 if (node.paddingAll) style.padding = node.paddingAll;
@@ -554,13 +689,7 @@ const Type3CarouselRenderer = ({ json }) => {
 
                 const isClickable = !!node.action;
                 const ElementType = isClickable ? 'a' : 'div';
-                
-                const actionProps = isClickable ? {
-                    href: node.action.uri,
-                    target: '_blank',
-                    rel: 'noreferrer',
-                    className: 'cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95' 
-                } : {};
+                const actionProps = isClickable ? { href: node.action.uri, target: '_blank', rel: 'noreferrer', className: 'cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95' } : {};
 
                 if (node.type === 'text') {
                     style.color = node.color;
@@ -575,111 +704,69 @@ const Type3CarouselRenderer = ({ json }) => {
                     if (node.wrap) {
                         textClass += "text-left self-start ";
                     } else if (node.color === '#ffffff' && node.weight === 'bold') {
-                        textClass += "text-center w-full h-full flex items-center justify-center "; 
-                        marginClass = ""; 
+                        textClass += "text-center w-full h-full flex items-center justify-center "; marginClass = ""; 
                     } else {
-                        if (node.align === 'center') textClass += "text-center ";
-                        else if (node.align === 'end') textClass += "text-right ";
-                        
-                        if (node.gravity === 'center') textClass += "self-center ";
-                        if (node.gravity === 'bottom') textClass += "self-end ";
-                        if (node.gravity === 'top') textClass += "self-start ";
+                        if (node.align === 'center') textClass += "text-center "; else if (node.align === 'end') textClass += "text-right ";
+                        if (node.gravity === 'center') textClass += "self-center "; if (node.gravity === 'bottom') textClass += "self-end "; if (node.gravity === 'top') textClass += "self-start ";
                     }
-
-                    return (
-                        <ElementType key={key} style={style} className={`${positionClass} ${textClass} ${marginClass} ${actionProps.className || ''}`} {...actionProps}>
-                            {node.text}
-                        </ElementType>
-                    );
+                    return <ElementType key={key} style={style} className={`${positionClass} ${textClass} ${marginClass} ${actionProps.className || ''}`} {...actionProps}>{node.text}</ElementType>;
                 }
 
                 if (node.type === 'box') {
                     let boxClass = "flex ";
                     boxClass += node.layout === 'horizontal' ? "flex-row " : "flex-col ";
-                    
-                    if (node.justifyContent === 'center') boxClass += "justify-center ";
-                    else if (node.justifyContent === 'flex-end') boxClass += "justify-end ";
-                    else if (node.justifyContent === 'space-between') boxClass += "justify-between ";
-                    
-                    if (node.alignItems === 'center') boxClass += "items-center ";
-                    else if (node.alignItems === 'flex-end') boxClass += "items-end ";
-                    else if (node.alignItems === 'flex-start') boxClass += "items-start ";
+                    if (node.justifyContent === 'center') boxClass += "justify-center "; else if (node.justifyContent === 'flex-end') boxClass += "justify-end "; else if (node.justifyContent === 'space-between') boxClass += "justify-between ";
+                    if (node.alignItems === 'center') boxClass += "items-center "; else if (node.alignItems === 'flex-end') boxClass += "items-end "; else if (node.alignItems === 'flex-start') boxClass += "items-start ";
                     
                     const gapMap = { xs: 'gap-1', sm: 'gap-2', md: 'gap-3', lg: 'gap-4', xl: 'gap-5' };
                     if (node.spacing && gapMap[node.spacing]) boxClass += gapMap[node.spacing] + " ";
 
-                    return (
-                        <ElementType key={key} style={style} className={`${positionClass} ${boxClass} ${marginClass} ${actionProps.className || ''}`} {...actionProps}>
-                            {node.contents?.map((child, i) => renderNode(child, i))}
-                        </ElementType>
-                    );
+                    return <ElementType key={key} style={style} className={`${positionClass} ${boxClass} ${marginClass} ${actionProps.className || ''}`} {...actionProps}>{node.contents?.map((child, i) => renderNode(child, i))}</ElementType>;
                 }
 
                 if (node.type === 'image') {
                     const imgStyle = { ...style, objectFit: node.aspectMode === 'cover' ? 'cover' : 'contain' };
                     if (node.aspectRatio) imgStyle.aspectRatio = node.aspectRatio.replace(':', '/');
-                    
                     let imgClass = "max-w-full block ";
                     if (node.gravity === 'center') imgClass += "self-center ";
                     
                     if (isClickable) {
-                         return (
-                             <a key={key} {...actionProps} style={{ display: 'contents' }}>
-                                 <img src={node.url} style={imgStyle} className={`${positionClass} ${imgClass} ${marginClass} ${actionProps.className}`} />
-                             </a>
-                         )
+                         return <a key={key} {...actionProps} style={{ display: 'contents' }}><img src={node.url} style={imgStyle} className={`${positionClass} ${imgClass} ${marginClass} ${actionProps.className}`} /></a>
                     }
                     return <img key={key} src={node.url} style={imgStyle} className={`${positionClass} ${imgClass} ${marginClass}`} />;
                 }
-
                 if (node.type === 'filler') return <div key={key} style={{flex: 1}} />;
-                
                 return null;
             };
 
-            // กำหนด Style พื้นหลัง Header (Gradient)
             const headerStyle = {};
             if (json.header?.background?.type === 'linearGradient') {
                 headerStyle.background = `linear-gradient(${json.header.background.angle}, ${json.header.background.startColor}, ${json.header.background.endColor})`;
             } else if (json.header?.backgroundColor) {
                 headerStyle.backgroundColor = json.header.backgroundColor;
             }
-            
-            // [UPDATED] ไม่ดึง Padding/Height จาก JSON แล้ว เพื่อบังคับจัด Layout เองให้เหมือน Type 1
-            headerStyle.padding = 0; // Reset padding เป็น 0
-            headerStyle.height = 'auto'; // ให้สูงตามรูปภาพ
+            headerStyle.padding = 0; headerStyle.height = 'auto';
 
             return (
                 <div className="bg-white w-full h-[500px] border border-slate-200 shadow-sm rounded-xl overflow-hidden flex flex-col">
-                    {/* Header: ปรับให้เหมือน Type 1 คือรูปเต็มพื้นที่ (แต่มี BG Gradient รองหลัง) */}
                     {json.header && (
                         <div style={headerStyle} className="flex flex-col justify-center items-center relative flex-shrink-0 w-full">
                             {json.header.contents.map((c, i) => {
-                                // ถ้าเป็นรูปภาพ ให้บังคับ Aspect Ratio และความกว้างเต็ม
-                                if (c.type === 'image') {
-                                    return <img key={i} src={c.url} className=" w-[200px] h-[45px] object-contain block" style={{aspectRatio:20/3}} />;
-                                }
+                                if (c.type === 'image') return <img key={i} src={c.url} className=" w-[200px] h-[45px] object-contain block" style={{aspectRatio:20/3}} />;
                                 return renderNode(c, i);
                             })}
                         </div>
                     )}
-                    
-                    {/* Hero (Video Section) */}
                     {json.hero && (
                         <div className="relative w-full bg-black flex-shrink-0">
                             {json.hero.type === 'video' ? (
                                 <div className="relative w-full" style={{aspectRatio: json.hero.aspectRatio ? json.hero.aspectRatio.replace(':','/') : '16/9'}}>
                                     <img src={json.hero.altContent?.url || json.hero.previewUrl} className="w-full h-full object-cover opacity-90" />
-                                    
-                                    {/* Action Overlay */}
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer">
-                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 
-                                                        transition-transform duration-300 group-hover:scale-110">
+                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 transition-transform duration-300 group-hover:scale-110">
                                             <Icon name="play" size={25} className="text-white fill-white ml-1" />
                                         </div>
                                     </div>
-
-                                    {/* Action Label */}
                                     {json.hero.action && (
                                         <div className="absolute bottom-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center pointer-events-none z-10">
                                             {json.hero.action.label} <Icon name="chevron-right" size={14} className="ml-1" />
@@ -691,25 +778,11 @@ const Type3CarouselRenderer = ({ json }) => {
                             )}
                         </div>
                     )}
-
-                    {/* Body */}
-                    {json.body && (
-                        <div className="p-4 flex-1 hide-scroll">
-                            {renderNode(json.body)}
-                        </div>
-                    )}
-
-                    {/* Footer */}
-                    {json.footer && (
-                        <div className="p-4 pt-2 pb-10 border-t border-slate-50 flex justify-center flex-shrink-0">
-                            {renderNode(json.footer)}
-                        </div>
-                    )}
+                    {json.body && <div className="p-4 flex-1 hide-scroll">{renderNode(json.body)}</div>}
+                    {json.footer && <div className="p-4 pt-2 pb-10 border-t border-slate-50 flex justify-center flex-shrink-0">{renderNode(json.footer)}</div>}
                 </div>
             )
         };
-        
-        
         
         const Type5ProcessRenderer = ({ json }) => {
             if (!json) return null;
@@ -721,15 +794,9 @@ const Type3CarouselRenderer = ({ json }) => {
                 if (!boxNode) return null;
                 const innerCircle = boxNode.contents?.[0]?.contents?.[0]; 
                 const circleStyle = {
-                    width: innerCircle?.width || '44px',
-                    height: innerCircle?.height || '44px',
-                    borderRadius: '50%',
-                    backgroundColor: innerCircle?.backgroundColor || 'transparent',
+                    width: innerCircle?.width || '44px', height: innerCircle?.height || '44px', borderRadius: '50%', backgroundColor: innerCircle?.backgroundColor || 'transparent',
                     border: innerCircle?.borderColor ? `${innerCircle.borderWidth || '1px'} solid ${innerCircle.borderColor}` : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden'
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
                 };
                 const imgNode = innerCircle?.contents?.[0];
                 const hasImage = imgNode?.type === 'image';
@@ -751,131 +818,58 @@ const Type3CarouselRenderer = ({ json }) => {
 
             return (
                 <div className="bg-[#f9f5f2] w-full border border-slate-200 rounded-xl shadow-sm rounded-md overflow-hidden flex flex-col">
-                    {/* Hero (Video Section) */}
                     {json.hero && (
                         <div className="relative w-full bg-black">
                             {json.hero.type === 'video' ? (
                                 <div className="relative w-full" style={{aspectRatio: json.hero.aspectRatio ? json.hero.aspectRatio.replace(':','/') : '16/9'}}>
                                     <img src={json.hero.altContent?.url || json.hero.previewUrl} className="w-full h-full object-cover opacity-90" />
-                                    
-                                    {/* --- ส่วน Action Overlay --- */}
-                                    {/* ปกติ: bg-black/10 (จางๆ) */}
-                                    {/* Hover: bg-black/40 (เงาเทาเข้มขึ้นเต็มหน้าจอ) */}
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300 group cursor-pointer ">
-                                    {/* <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">*/}
-                                        {/* ปุ่ม Play: ให้ขยายเล็กน้อย แต่ไม่ต้องมีเงาแยกต่างหากแล้ว เพราะ Overlay ทำหน้าที่บอกสถานะ Hover แล้ว */}
-                                        
-                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 
-                                                        transition-transform duration-300 group-hover:scale-110">
+                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center  border border-white/30 transition-transform duration-300 group-hover:scale-110">
                                             <Icon name="play" size={25} className="text-white fill-white ml-1" />
                                         </div>
-                                        
                                     </div>
                                 </div>
                             ) : (
                                 <img src={json.hero.url} className="w-full object-cover" style={{aspectRatio: json.hero.aspectRatio?.replace(':','/')}} />
                             )}
-                            
                         </div>
                     )}
                     <div className="p-6 relative min-h-[150px] flex flex-col items-center">
-                        <div className="absolute top-[45px] left-0 right-0 mx-auto w-[200px] h-[3px] z-0 rounded-full" 
-                             style={{ background: 'linear-gradient(90deg, #EAEAEA, #c0c0c0, #ff0000)' }}>
-                        </div>
+                        <div className="absolute top-[45px] left-0 right-0 mx-auto w-[200px] h-[3px] z-0 rounded-full" style={{ background: 'linear-gradient(90deg, #EAEAEA, #c0c0c0, #ff0000)' }}></div>
                         <div className="flex justify-between w-full max-w-[280px] z-10 relative mt-2">
-                             {steps.map((step, idx) => (
-                                 <React.Fragment key={idx}>
-                                     {renderStepCircle(step)}
-                                 </React.Fragment>
-                             ))}
+                             {steps.map((step, idx) => <React.Fragment key={idx}>{renderStepCircle(step)}</React.Fragment>)}
                         </div>
                     </div>
                 </div>
             );
         };
 
-
-
-
-
         const Type6PortraitCarouselRenderer = ({ json }) => {
             if (!json || json.type !== 'carousel') return null;
-
-            const scrollRef = React.useRef(null);
-            const [canScrollLeft, setCanScrollLeft] = React.useState(false);
-            const [canScrollRight, setCanScrollRight] = React.useState(true);
-
-            // ฟังก์ชันตรวจสอบตำแหน่ง Scroll เพื่อซ่อน/แสดงปุ่ม
-            const checkScroll = () => {
-                if (scrollRef.current) {
-                    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-                    // อยู่ซ้ายสุดหรือไม่? (เผื่อค่าคลาดเคลื่อนเล็กน้อยใช้ > 1)
-                    setCanScrollLeft(scrollLeft > 1);
-                    // อยู่ขวาสุดหรือไม่? (ใช้ Math.ceil เผื่อทศนิยม)
-                    setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
-                }
-            };
-
-            // ตรวจสอบตอนโหลดครั้งแรกและตอน Scroll
-            React.useEffect(() => {
-                checkScroll();
-                const timer = setTimeout(checkScroll, 500);
-                const el = scrollRef.current;
-                if (el) {
-                    el.addEventListener('scroll', checkScroll);
-                    window.addEventListener('resize', checkScroll);
-                }
-                return () => {
-                    clearTimeout(timer);
-                    if (el) el.removeEventListener('scroll', checkScroll);
-                    window.removeEventListener('resize', checkScroll);
-                };
-            }, []);
-
-            const scroll = (offset) => {
-                if (scrollRef.current) {
-                    scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-                }
-            };
+            // ใช้ Custom Hook
+            const { scrollRef, canScrollLeft, canScrollRight, scrollLeft, scrollRight } = useHorizontalScroll(310);
 
             return (
                 <div className="relative group/carousel w-full">
-                    {/* ปุ่มลูกศรซ้าย: ขยับออกไปด้านซ้าย (-left-12) และซ่อนถ้าเลื่อนไม่ได้ */}
-                    <button 
-                        onClick={() => scroll(-310)}
-                        className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
-                            ${canScrollLeft ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}
-                    >
+                    <button onClick={scrollLeft} className={`absolute -left-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300 ${canScrollLeft ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}>
                         <Icon name="chevron-left" size={28} />
                     </button>
 
-                    {/* Container ของ Carousel */}
                     <div ref={scrollRef} className="flex overflow-x-auto py-2 gap-3 snap-x w-full hide-scroll pl-1 scroll-smooth">
-                        {json.contents.map((bubble, i) => {
-                            return (
-                                <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{height: '500px', aspectRatio: '1/2'}}>
-                                    {bubble.hero && (
-                                        <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                                    </div>
-                                </div>
-                            )
-                        })}
+                        {json.contents.map((bubble, i) => (
+                            <div key={i} className="flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-sm relative group cursor-pointer transition-transform hover:scale-[1.02]" style={{height: '500px', aspectRatio: '1/2'}}>
+                                {bubble.hero && <img src={bubble.hero.url} className="w-full h-full object-cover" loading="lazy" />}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4"></div>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* ปุ่มลูกศรขวา: ขยับออกไปด้านขวา (-right-12) และซ่อนถ้าเลื่อนไม่ได้ */}
-                    <button 
-                        onClick={() => scroll(310)}
-                        className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300
-                            ${canScrollRight ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}
-                    >
+                    <button onClick={scrollRight} className={`absolute -right-7 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/50 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center text-slate-700 hover:text-red-600 hover:scale-110 transition-all duration-300 ${canScrollRight ? 'opacity-0 group-hover/carousel:opacity-100 visible' : 'opacity-0 invisible'}`}>
                         <Icon name="chevron-right" size={28} />
                     </button>
                 </div>
             )
         };
-
 
         // --- Pages ---
         const Navbar = ({ setPage, currentPage }) => (
@@ -943,1228 +937,13 @@ const Type3CarouselRenderer = ({ json }) => {
         const FlexPage = ({ setPage }) => {
             const [selectedJson, setSelectedJson] = useState(null);
 
-            // --- REAL JSON DATA SETS ---
-            const lotteryJson = {
-                "type": "bubble", "size": "giga",
-                "header": { "type": "box", "layout": "vertical", "contents": [{ "type": "image", "size": "full", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_background/Headband_3_black.png", "aspectMode": "fit", "aspectRatio": "5:1" }] },
-                "hero": { "type": "video", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250801_Prize_chudyai.mp4", "previewUrl": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_vdo_cover/250801_Prize_chudyai_Cover.png", "aspectRatio": "16:9" },
-                "body": { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "vertical", "contents": [
-                    { "type": "box", "layout": "horizontal", "contents": [{ "type": "box", "layout": "vertical", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_button/purchase_lottery_flex1.png" }] }, { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "ซื้อลอตเตอรี่" }, { "type": "text", "text": "กี่ใบก็มีลุ้น! โอกาสมีอยู่ทุกใบ" }] }] },
-                    { "type": "separator" },
-                    { "type": "box", "layout": "horizontal", "contents": [{ "type": "box", "layout": "vertical", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_button/purchase_jidrid_flex1.png" }] }, { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "จิ๊ดริดหยิบโชค" }, { "type": "text", "text": "ไม่มีเลขในใจ ใช้จิ๊ดริดหยิบให้เลย" }] }] },
-                    { "type": "separator" },
-                    { "type": "box", "layout": "horizontal", "contents": [{ "type": "box", "layout": "vertical", "contents": [{ "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_button/purchase_goldentime_flex1.png" }] }, { "type": "box", "layout": "vertical", "contents": [{ "type": "text", "text": "นาทีทอง" }, { "type": "text", "text": "นาทีนี้ใครไว ใครได้" }] }] }
-                ] }] },
-                "footer": { "type": "box", "layout": "vertical", "contents": [], "backgroundColor": "#ff0200ff" }
-            };
-
-            const lotteryJson2 = {
-  "type": "carousel",
-  "contents": [
-    {
-      "type": "bubble",
-      "hero": {
-        "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_01.jpg",
-        "size": "full",
-        "aspectMode": "cover",
-        "aspectRatio": "3:3.2",
-        "action": {
-          "type": "uri",
-          "label": "ซื้อลอตเตอรี่ที่นี่",
-          "uri": "https://lin.ee/oV69qGV"
-        }
-      }
-    },
-    {
-      "type": "bubble",
-      "hero": {
-        "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_02.jpg",
-        "size": "full",
-        "aspectMode": "cover",
-        "aspectRatio": "3:3.2",
-        "action": {
-          "type": "uri",
-          "label": "ซื้อลอตเตอรี่ที่นี่",
-          "uri": "https://lin.ee/IcgKyUm"
-        }
-      }
-    },
-    {
-      "type": "bubble",
-      "hero": {
-        "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_03.jpg",
-        "aspectRatio": "3:3.2",
-        "aspectMode": "cover",
-        "size": "full",
-        "action": {
-          "type": "uri",
-          "label": "ซื้อลอตเตอรี่ที่นี่",
-          "uri": "https://lin.ee/pwTuVaa"
-        }
-      }
-    },
-    {
-      "type": "bubble",
-      "hero": {
-        "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_05.jpg",
-        "aspectRatio": "3:3.2",
-        "aspectMode": "cover",
-        "size": "full",
-        "action": {
-          "type": "uri",
-          "label": "ซื้อลอตเตอรี่ที่นี่",
-          "uri": "https://lin.ee/Nxyg8FL"
-        }
-      }
-    },
-    {
-      "type": "bubble",
-      "hero": {
-        "type": "image",
-        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/ltp_flex2_cards/count_10.jpg",
-        "aspectRatio": "3:3.2",
-        "aspectMode": "cover",
-        "size": "full",
-        "action": {
-          "type": "uri",
-          "label": "ซื้อลอตเตอรี่ที่นี่",
-          "uri": "https://lin.ee/SeDO4Ud"
-        }
-      }
-    }
-  ]
-};
-
-
-
-
-            const lotteryJson3 = {
-            "type": "carousel",
-            "contents": [
-                {
-                "type": "bubble",
-                "size": "mega",
-                "header": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                    {
-                        "type": "image",
-                        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logolotteryplus/logo_lotteryplus_horizontal_red.png",
-                        "size": "200px",
-                        "aspectRatio": "5:1",
-                        "aspectMode": "fit"
-                    }
-                    ],
-                    "spacing": "0px",
-                    "paddingAll": "0px"
-                },
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "spacing": "none",
-                    "contents": [
-                    {
-                        "type": "image",
-                        "position": "absolute",
-                        "size": "380px",
-                        "gravity": "center",
-                        "align": "center",
-                        "margin": "none",
-                        "offsetTop": "-120px",
-                        "offsetStart": "0px",
-                        "aspectRatio": "1:2",
-                        "offsetEnd": "0px",
-                        "aspectMode": "fit",
-                        "offsetBottom": "-120px",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/18vidat",
-                        "altUri": {
-                            "desktop": "https://lin.ee/18vidat"
-                        }
-                        },
-                        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_background/lakdung_BC_flex3.png"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [],
-                        "position": "absolute",
-                        "offsetTop": "0%",
-                        "offsetBottom": "0%",
-                        "offsetStart": "0%",
-                        "offsetEnd": "0%",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/18vidat",
-                        "altUri": {
-                            "desktop": "https://lin.ee/18vidat"
-                        }
-                        }
-                    },
-                    {
-                        "type": "image",
-                        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_coolnumber/ruamlakdetlakdang.png",
-                        "position": "relative",
-                        "aspectMode": "fit",
-                        "offsetTop": "-110px",
-                        "offsetStart": "0px",
-                        "margin": "lg",
-                        "size": "full",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/18vidat",
-                        "altUri": {
-                            "desktop": "https://lin.ee/18vidat"
-                        }
-                        }
-                    },
-                    {
-                        "type": "text",
-                        "size": "lg",
-                        "align": "center",
-                        "color": "#ffffff",
-                        "contents": [
-                        {
-                            "type": "span",
-                            "text": "ประจำงวดวันที่ 16 พฤศจิกายน 2568",
-                            "weight": "bold",
-                            "style": "normal",
-                            "decoration": "none",
-                            "size": "xs"
-                        }
-                        ],
-                        "weight": "bold",
-                        "decoration": "none",
-                        "position": "absolute",
-                        "gravity": "center",
-                        "scaling": true,
-                        "wrap": true,
-                        "adjustMode": "shrink-to-fit",
-                        "maxLines": 1,
-                        "offsetStart": "53px",
-                        "offsetTop": "80px",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/18vidat",
-                        "altUri": {
-                            "desktop": "https://lin.ee/18vidat"
-                        }
-                        }
-                    },
-                    {
-                        "type": "image",
-                        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_jidrid/Jidrid_122.png",
-                        "size": "3xl",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/18vidat",
-                        "altUri": {
-                            "desktop": "https://lin.ee/18vidat"
-                        }
-                        },
-                        "align": "center",
-                        "gravity": "center",
-                        "position": "absolute",
-                        "offsetStart": "65px",
-                        "offsetTop": "130px"
-                    }
-                    ],
-                    "background": {
-                    "type": "linearGradient",
-                    "angle": "0deg",
-                    "startColor": "#000000",
-                    "endColor": "#000000"
-                    },
-                    "flex": 1,
-                    "action": {
-                    "type": "uri",
-                    "label": "รวมเลขเด็ดเลขดัง",
-                    "uri": "https://lin.ee/18vidat",
-                    "altUri": {
-                        "desktop": "https://lin.ee/18vidat"
-                    }
-                    }
-                }
-                },
-                {
-                "type": "bubble",
-                "size": "mega",
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "backgroundColor": "#ffffff",
-                        "cornerRadius": "xl",
-                        "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "height": "10px"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "cornerRadius": "md",
-                            "contents": [
-                            {
-                                "type": "image",
-                                "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logo_program/lekpheehian.png",
-                                "aspectMode": "cover",
-                                "size": "full",
-                                "gravity": "center",
-                                "align": "center",
-                                "aspectRatio": "3.5:1"
-                            }
-                            ],
-                            "background": {
-                            "type": "linearGradient",
-                            "angle": "170deg",
-                            "startColor": "#00000020",
-                            "endColor": "#000000",
-                            "centerColor": "#000000"
-                            },
-                            "borderColor": "#FFFFFF",
-                            "borderWidth": "light"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                            {
-                                "type": "filler"
-                            },
-                            {
-                                "type": "box",
-                                "layout": "horizontal",
-                                "justifyContent": "center",
-                                "contents": [
-                                {
-                                    "type": "filler"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "283",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "20",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "filler"
-                                }
-                                ],
-                                "flex": 1,
-                                "alignItems": "center",
-                                "height": "50px"
-                            }
-                            ],
-                            "height": "60px",
-                            "justifyContent": "center"
-                        },
-                        {
-                            "type": "text",
-                            "align": "center",
-                            "contents": [
-                            {
-                                "type": "span",
-                                "text": "หลอนพารวย ลูกเต๋าและปิงปองให้โชค",
-                                "size": "xs",
-                                "style": "normal"
-                            }
-                            ],
-                            "gravity": "center"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "height": "20px"
-                        }
-                        ],
-                        "spacing": "none",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/oaaZjx2",
-                        "altUri": {
-                            "desktop": "https://lin.ee/oaaZjx2"
-                        }
-                        },
-                        "height": "190px",
-                        "paddingAll": "0px"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "backgroundColor": "#ffffff",
-                        "cornerRadius": "xl",
-                        "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "height": "20px"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "cornerRadius": "md",
-                            "contents": [
-                            {
-                                "type": "image",
-                                "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logo_program/patithinjeen.png",
-                                "aspectMode": "cover",
-                                "size": "full",
-                                "gravity": "center",
-                                "align": "center",
-                                "aspectRatio": "3.5:1"
-                            }
-                            ],
-                            "borderColor": "#FFFFFF",
-                            "borderWidth": "light"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                            {
-                                "type": "filler"
-                            },
-                            {
-                                "type": "box",
-                                "layout": "horizontal",
-                                "justifyContent": "center",
-                                "contents": [
-                                {
-                                    "type": "filler"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "2",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "6",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "3",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "5",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "filler"
-                                }
-                                ],
-                                "flex": 1,
-                                "alignItems": "center",
-                                "height": "50px"
-                            }
-                            ],
-                            "height": "60px",
-                            "justifyContent": "center"
-                        },
-                        {
-                            "type": "text",
-                            "align": "center",
-                            "contents": [
-                            {
-                                "type": "span",
-                                "text": "งวดนี้ไม่ธรรมดา ต้องมีติดตู้เซฟไว้",
-                                "size": "xs",
-                                "weight": "regular",
-                                "style": "normal"
-                            }
-                            ],
-                            "gravity": "center"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "height": "20px"
-                        }
-                        ],
-                        "spacing": "none",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/oaaZjx2",
-                        "altUri": {
-                            "desktop": "https://lin.ee/oaaZjx2"
-                        }
-                        },
-                        "height": "210px",
-                        "paddingAll": "0px"
-                    }
-                    ],
-                    "cornerRadius": "xl",
-                    "height": "400px",
-                    "paddingAll": "10px"
-                },
-                "footer": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                    {
-                        "type": "text",
-                        "text": "**เป็นความเชื่อส่วนบุคคล",
-                        "size": "xxs",
-                        "adjustMode": "shrink-to-fit",
-                        "align": "end"
-                    }
-                    ]
-                }
-                },
-                {
-                "type": "bubble",
-                "size": "mega",
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "backgroundColor": "#ffffff",
-                        "cornerRadius": "xl",
-                        "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "height": "10px"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "cornerRadius": "md",
-                            "contents": [
-                            {
-                                "type": "image",
-                                "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logo_program/maetukta.png",
-                                "aspectMode": "cover",
-                                "size": "full",
-                                "gravity": "center",
-                                "align": "center",
-                                "aspectRatio": "3.5:1"
-                            }
-                            ],
-                            "borderColor": "#FFFFFF",
-                            "borderWidth": "light"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                            {
-                                "type": "filler"
-                            },
-                            {
-                                "type": "box",
-                                "layout": "horizontal",
-                                "justifyContent": "center",
-                                "contents": [
-                                {
-                                    "type": "filler"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "2",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "9",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "4",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "7",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "0",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "filler"
-                                }
-                                ],
-                                "flex": 1,
-                                "alignItems": "center",
-                                "height": "50px"
-                            }
-                            ],
-                            "height": "60px",
-                            "justifyContent": "center"
-                        },
-                        {
-                            "type": "text",
-                            "align": "center",
-                            "contents": [
-                            {
-                                "type": "span",
-                                "text": "พาเข้ามาแล้วหลายงวด",
-                                "size": "xs",
-                                "style": "normal"
-                            }
-                            ],
-                            "gravity": "center"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "height": "20px"
-                        }
-                        ],
-                        "spacing": "none",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/oaaZjx2",
-                        "altUri": {
-                            "desktop": "https://lin.ee/oaaZjx2"
-                        }
-                        },
-                        "flex": 1,
-                        "paddingAll": "0px",
-                        "height": "190px"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "backgroundColor": "#ffffff",
-                        "cornerRadius": "xl",
-                        "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "height": "20px"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "cornerRadius": "md",
-                            "contents": [
-                            {
-                                "type": "image",
-                                "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logo_program/lekai.png",
-                                "aspectMode": "cover",
-                                "size": "full",
-                                "gravity": "center",
-                                "align": "center",
-                                "aspectRatio": "3.5:1"
-                            }
-                            ],
-                            "borderColor": "#FFFFFF",
-                            "borderWidth": "light"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                            {
-                                "type": "filler"
-                            },
-                            {
-                                "type": "box",
-                                "layout": "horizontal",
-                                "justifyContent": "center",
-                                "contents": [
-                                {
-                                    "type": "filler"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "15",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "63",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "89",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "07",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "42",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "filler"
-                                }
-                                ],
-                                "flex": 1,
-                                "alignItems": "center",
-                                "height": "25px"
-                            },
-                            {
-                                "type": "box",
-                                "layout": "horizontal",
-                                "justifyContent": "center",
-                                "contents": [
-                                {
-                                    "type": "filler"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "30",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "56",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "92",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "24",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "78",
-                                    "weight": "bold",
-                                    "size": "lg",
-                                    "align": "center"
-                                },
-                                {
-                                    "type": "filler"
-                                }
-                                ],
-                                "flex": 1,
-                                "alignItems": "center",
-                                "height": "25px"
-                            }
-                            ],
-                            "height": "60px",
-                            "justifyContent": "center"
-                        },
-                        {
-                            "type": "text",
-                            "align": "center",
-                            "contents": [
-                            {
-                                "type": "span",
-                                "text": "สายตัวเลข ไม่ควรพลาด",
-                                "size": "xs",
-                                "style": "normal"
-                            }
-                            ],
-                            "gravity": "center"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "height": "20px"
-                        }
-                        ],
-                        "spacing": "none",
-                        "action": {
-                        "type": "uri",
-                        "label": "รวมเลขเด็ดเลขดัง",
-                        "uri": "https://lin.ee/oaaZjx2",
-                        "altUri": {
-                            "desktop": "https://lin.ee/oaaZjx2"
-                        }
-                        },
-                        "flex": 1,
-                        "paddingAll": "0px",
-                        "height": "210px"
-                    }
-                    ],
-                    "cornerRadius": "xl",
-                    "height": "400px",
-                    "paddingAll": "10px"
-                },
-                "footer": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                    {
-                        "type": "text",
-                        "text": "**เป็นความเชื่อส่วนบุคคล",
-                        "size": "xxs",
-                        "adjustMode": "shrink-to-fit",
-                        "align": "end"
-                    }
-                    ]
-                }
-                }
-            ]
-            };
-
-            const lotteryJson4 = {
-                "type": "bubble",
-                "size": "mega",
-                "header": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [{
-                        "type": "image",
-                        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_logolotteryplus/logo_lotteryplus_horizontal_white.png",
-                        "align": "start",
-                        "aspectMode": "fit",
-                        "gravity": "center",
-                        "size": "5xl",
-                        "animated": true,
-                        "aspectRatio": "6:1"
-                    }],
-                    "paddingAll": "20px",
-                    "spacing": "none",
-                    "height": "65px",
-                    "paddingTop": "22px",
-                    "background": {
-                        "type": "linearGradient",
-                        "angle": "330deg",
-                        "startColor": "#b31217",
-                        "endColor": "#ff0000",
-                        "centerColor": "#D31027"
-                    },
-                    "justifyContent": "center"
-                },
-                "hero": {
-                    "type": "video",
-                    "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250716_Sell_Night.mp4",
-                    "previewUrl": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250716_Sell_Night.mp4",
-                    "altContent": {
-                        "type": "image",
-                        "size": "full",
-                        "aspectRatio": "16:9",
-                        "aspectMode": "cover",
-                        "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_vdo_cover/250716_Sell_Night_Cover.png"
-                    },
-                    "aspectRatio": "16:9"
-                },
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": "วิธีสมัครสมาชิก",
-                            "color": "#b7b7b7",
-                            "size": "xs",
-                            "style": "italic",
-                            "decoration": "underline",
-                            "margin": "md"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Step 1",
-                                    "size": "xs",
-                                    "gravity": "center",
-                                    "color": "#EF454D",
-                                    "weight": "bold",
-                                    "flex": 1,
-                                    "align": "end"
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "contents": [
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "contents": [],
-                                            "cornerRadius": "30px",
-                                            "height": "12px",
-                                            "width": "12px",
-                                            "borderColor": "#B7B7B7",
-                                            "borderWidth": "2px"
-                                        }
-                                    ],
-                                    "width": "24px",
-                                    "alignItems": "center",
-                                    "justifyContent": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "เลือกเมนู 'สมาชิก'",
-                                    "gravity": "center",
-                                    "flex": 4,
-                                    "size": "sm",
-                                    "weight": "bold",
-                                    "margin": "sm"
-                                }
-                            ],
-                            "spacing": "sm",
-                            "margin": "xl",
-                            "alignItems": "center"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "filler",
-                                    "flex": 1
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "contents": [
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "contents": [],
-                                            "width": "2px",
-                                            "backgroundColor": "#B7B7B7",
-                                            "height": "40px"
-                                        }
-                                    ],
-                                    "width": "24px",
-                                    "alignItems": "center"
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "กด 'ตกลง' ระะบบจะไปที่ LINE",
-                                            "color": "#8c8c8c",
-                                            "size": "xs",
-                                            "gravity": "center",
-                                            "wrap": true
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": "กด 'อนุญาต'",
-                                            "color": "#8c8c8c",
-                                            "size": "xs",
-                                            "gravity": "center",
-                                            "wrap": true
-                                        }
-                                    ],
-                                    "flex": 4,
-                                    "justifyContent": "center",
-                                    "margin": "sm"
-                                }
-                            ],
-                            "spacing": "sm"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Step 2",
-                                    "gravity": "center",
-                                    "size": "xs",
-                                    "weight": "bold",
-                                    "color": "#EF454D",
-                                    "flex": 1,
-                                    "align": "end"
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "contents": [
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "contents": [],
-                                            "cornerRadius": "30px",
-                                            "width": "12px",
-                                            "height": "12px",
-                                            "borderColor": "#EF454D",
-                                            "borderWidth": "2px"
-                                        }
-                                    ],
-                                    "width": "24px",
-                                    "alignItems": "center",
-                                    "justifyContent": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "เพิ่มเพื่อน LINE Official",
-                                    "gravity": "center",
-                                    "flex": 4,
-                                    "size": "sm",
-                                    "weight": "bold",
-                                    "margin": "sm"
-                                }
-                            ],
-                            "spacing": "sm",
-                            "alignItems": "center"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "filler",
-                                    "flex": 1
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "contents": [
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "contents": [],
-                                            "width": "2px",
-                                            "backgroundColor": "#EF454D",
-                                            "background": {
-                                                "type": "linearGradient",
-                                                "angle": "0deg",
-                                                "startColor": "#b31217",
-                                                "endColor": "#ff0000",
-                                                "centerColor": "#D31027"
-                                            },
-                                            "height": "30px"
-                                        }
-                                    ],
-                                    "width": "24px",
-                                    "alignItems": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "กรอกข้อมูลส่วนตัวให้ครบถ้วน",
-                                    "gravity": "center",
-                                    "flex": 4,
-                                    "size": "xs",
-                                    "color": "#8c8c8c",
-                                    "margin": "sm"
-                                }
-                            ],
-                            "spacing": "sm",
-                            "alignItems": "center"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Step 3",
-                                    "gravity": "center",
-                                    "size": "xs",
-                                    "color": "#EF454D",
-                                    "weight": "bold",
-                                    "flex": 1,
-                                    "align": "end"
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "contents": [
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "contents": [],
-                                            "cornerRadius": "30px",
-                                            "width": "12px",
-                                            "height": "12px",
-                                            "borderColor": "#EF454D",
-                                            "borderWidth": "2px",
-                                            "backgroundColor": "#EF454D"
-                                        }
-                                    ],
-                                    "width": "24px",
-                                    "alignItems": "center",
-                                    "justifyContent": "center"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "กด 'ลงทะเบียน'",
-                                    "gravity": "center",
-                                    "flex": 4,
-                                    "size": "sm",
-                                    "weight": "bold",
-                                    "margin": "sm"
-                                }
-                            ],
-                            "spacing": "sm",
-                            "alignItems": "center"
-                        }
-                    ],
-                    "margin": "lg"
-                },
-                "footer": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "filler"
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [{
-                                "type": "text",
-                                "text": "สมัครเลย",
-                                "weight": "bold",
-                                "color": "#ffffff",
-                                "offsetBottom": "1px"
-                            }],
-                            "backgroundColor": "#ff0000cc",
-                            "cornerRadius": "10px",
-                            "justifyContent": "center",
-                            "alignItems": "center",
-                            "width": "250px",
-                            "height": "45px",
-                            "background": {
-                                "type": "linearGradient",
-                                "angle": "330deg",
-                                "startColor": "#b31217cc",
-                                "endColor": "#ff0000cc",
-                                "centerColor": "#D31027cc"
-                            },
-                            "action": {
-                                "type": "uri",
-                                "label": "action",
-                                "uri": "https://liff.line.me/1660835514-6pJ95rZ1"
-                            }
-                        },
-                        {
-                            "type": "filler"
-                        }
-                    ],
-                    "alignItems": "center"
-                }
-            };
-
-            const lotteryJson5 = {
-                "type": "bubble", "size": "mega",
-                "hero": {
-                    "type": "video", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250701_Sell_lekkhaotookchuamong.mp4", "altContent": { "type": "image", "size": "full", "aspectRatio": "16:9", "aspectMode": "cover", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_vdo_cover/250701_Sell_lekkhaotookchuamong_Cover.png" },
-                    "action": { "type": "uri", "label": "กดซื้อ รางวัลที่ 1", "uri": "https://liff.line.me/1660835514-xVBgVpKd" }, "aspectRatio": "16:9", "previewUrl": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_video/250701_Sell_lekkhaotookchuamong.mp4"
-                },
-                "body": {
-                    "type": "box", "layout": "vertical", "contents": [
-                    {
-                        "type": "box", "layout": "vertical", "contents": [
-                        { "type": "box", "layout": "vertical", "contents": [], "backgroundColor": "#c0c0c080", "width": "200px", "height": "3px", "justifyContent": "center", "alignItems": "center", "offsetTop": "34px", "background": { "type": "linearGradient", "angle": "90deg", "startColor": "#EAEAEA", "endColor": "#ff0000", "centerColor": "#c0c0c0" } },
-                        {
-                            "type": "box", "layout": "horizontal", "contents": [
-                            { "type": "filler", "flex": 1 },
-                            { "type": "box", "layout": "vertical", "contents": [ { "type": "box", "layout": "vertical", "contents": [ { "type": "image", "url": "https://lotterypluscdn.blob.core.windows.net/lotteryplus-icon/190.png", "size": "20px", "aspectRatio": "1:1", "aspectMode": "cover", "align": "center", "gravity": "center" } ], "backgroundColor": "#ffffff", "width": "40px", "height": "40px", "cornerRadius": "100px", "alignItems": "center", "justifyContent": "center", "borderWidth": "1.5px", "borderColor": "#ffffff" }, { "type": "text", "text": "Step 1", "size": "10px", "contents": [ { "type": "span", "text": "กดเลือกเลข ใส่ตะกร้า" } ], "wrap": true, "align": "center", "offsetTop": "15px" } ], "alignItems": "center", "cornerRadius": "100px", "flex": 2, "width": "60px", "height": "100px" },
-                            { "type": "filler" },
-                            { "type": "box", "layout": "vertical", "contents": [ { "type": "box", "layout": "vertical", "contents": [ { "type": "image", "url": "https://lotterypluscdn.blob.core.windows.net/lotteryplus-icon/190.png", "size": "20px", "aspectRatio": "1:1", "aspectMode": "cover", "align": "center", "gravity": "center" } ], "backgroundColor": "#ffffff", "width": "40px", "height": "40px", "cornerRadius": "100px", "alignItems": "center", "justifyContent": "center", "borderColor": "#ADA996", "borderWidth": "1.5px" }, { "type": "text", "text": "Step 1", "size": "10px", "contents": [ { "type": "span", "text": "เลือกช่องทาง การชำระเงิน" } ], "wrap": true, "align": "center", "offsetTop": "15px" } ], "alignItems": "center", "cornerRadius": "100px", "flex": 2, "width": "60px", "height": "100px" },
-                            { "type": "filler" },
-                            { "type": "box", "layout": "vertical", "contents": [ { "type": "box", "layout": "vertical", "contents": [ { "type": "image", "url": "https://lotterypluscdn.blob.core.windows.net/lotteryplus-icon/190.png", "size": "20px", "aspectRatio": "1:1", "aspectMode": "cover", "align": "center", "gravity": "center" } ], "backgroundColor": "#ff0000", "width": "38px", "height": "38px", "cornerRadius": "100px", "alignItems": "center", "justifyContent": "center" }, { "type": "text", "text": "Step 1", "size": "10px", "contents": [ { "type": "span", "text": "คำสั่งซื้อ สำเร็จ" } ], "wrap": true, "align": "center", "offsetTop": "15px" } ], "alignItems": "center", "cornerRadius": "100px", "flex": 2, "width": "60px", "height": "100px", "justifyContent": "center", "alignItems": "center", "offsetTop": "10px", "borderWidth": "1.5px", "borderColor": "#ff0000" },
-                            { "type": "filler" }
-                            ]
-                        }
-                        ], "alignItems": "center"
-                    }
-                    ], "backgroundColor": "#f9f5f2"
-                }
-            };
-
-            const lotteryJson6 = {
-                "type": "carousel",
-                "contents": [
-                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-001.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } },
-                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-002.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } },
-                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-003.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } },
-                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-004.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } },
-                    { "type": "bubble", "size": "deca", "hero": { "type": "image", "url": "https://img-flex.xn--m3ca1athe9asc7b2b6iqe.com/line_flex_message/flex_raw_material/source/ltp_prize_person/jidrid/Jidrid-005.png", "aspectRatio": "1:2", "size": "300px" }, "action": { "type": "uri", "label": "action", "uri": "https://lin.ee/lSM8jEB" }, "styles": { "footer": { "separator": false } } }
-                ]
-            };
-
             const flexItems = [
-                { id: 1, title: "Lottery Plus Campaign", type: "Video", color: "bg-red-500", icon: "ticket", desc: "การเลือกใช้วิดีโอรีวิวสินค้าและปุ่มที่นำไปสู่สินค้าต่างๆ เพื่อเพิ่มความน่าสนใจ และช่วยกระตุ้นการอยากซื้อให้กับลูกค้ามากขึ้น", jsonCode: lotteryJson, renderer: 'type1' },
-                { id: 4, title: "Register Steps", type: "Vertical Timeline", color: "bg-red-500", icon: "list", desc: "เป็นช่องทางที่รวบรวมสินค้าแนะนำที่มีความน่าเชื่อถือ เพื่อให้ลูกค้าได้เข้าถึงสินค้าที่ต้องการได้อย่างรวดเร็ว โดยจะมีการอัปเดตสินค้าอย่างสม่ำเสมอ เพื่อไม่ให้พลาดโอกาสสำคัญ", jsonCode: lotteryJson4, renderer: 'type4' },
-                { id: 6, title: "Jidrid Collection", type: "Portrait Carousel", color: "bg-blue-500", icon: "image", desc: "Carousel แบบแนวตั้ง (1:2 Aspect Ratio) สำหรับโชว์คอลเลคชั่นรูปภาพเต็มจอ", jsonCode: lotteryJson6, renderer: 'type6' },
-                { id: 2, title: "Lottery Plus Carousel", type: "Carousel", color: "bg-green-500", icon: "layers", desc: "แนะนำสินค้า การที่ได้เจอสินค้าที่ตรงใจ จะช่วยให้ลูกค้าสามารถเลือกซื้อสินค้าที่ต้องการได้อย่างสะดวก เพิ่มโอกาสในการซื้อได้มากขึ้น", jsonCode: lotteryJson2, renderer: 'type2' },
-                { id: 3, title: "Lucky Numbers", type: "Carousel", color: "bg-purple-600", icon: "star", desc: "ดีไซน์ใหม่ 2025: 1 การ์ดรวมผลรางวัล 2 เจ้า จัดวางแบบ Stack พร้อม Gradient Background", jsonCode: lotteryJson3, renderer: 'type3' },
-                { id: 5, title: "Buying Process", type: "Horizontal Timeline", color: "bg-orange-500", icon: "activity", desc: "Process Flow แนวนอน แสดงสถานะการสั่งซื้อพร้อมเส้น Progress ไล่เฉดสี", jsonCode: lotteryJson5, renderer: 'type5' },
+                { id: 1, title: "Lottery Plus Campaign", type: "Video", color: "bg-red-500", icon: "ticket", desc: "การเลือกใช้วิดีโอรีวิวสินค้าและปุ่มที่นำไปสู่สินค้าต่างๆ เพื่อเพิ่มความน่าสนใจ และช่วยกระตุ้นการอยากซื้อให้กับลูกค้ามากขึ้น", jsonCode: FLEX_DATA.lotteryJson, renderer: 'type1' },
+                { id: 4, title: "Register Steps", type: "Vertical Timeline", color: "bg-red-500", icon: "list", desc: "เป็นช่องทางที่รวบรวมสินค้าแนะนำที่มีความน่าเชื่อถือ เพื่อให้ลูกค้าได้เข้าถึงสินค้าที่ต้องการได้อย่างรวดเร็ว โดยจะมีการอัปเดตสินค้าอย่างสม่ำเสมอ เพื่อไม่ให้พลาดโอกาสสำคัญ", jsonCode: FLEX_DATA.lotteryJson4, renderer: 'type4' },
+                { id: 6, title: "Jidrid Collection", type: "Portrait Carousel", color: "bg-blue-500", icon: "image", desc: "Carousel แบบแนวตั้ง (1:2 Aspect Ratio) สำหรับโชว์คอลเลคชั่นรูปภาพเต็มจอ", jsonCode: FLEX_DATA.lotteryJson6, renderer: 'type6' },
+                { id: 2, title: "Lottery Plus Carousel", type: "Carousel", color: "bg-green-500", icon: "layers", desc: "แนะนำสินค้า การที่ได้เจอสินค้าที่ตรงใจ จะช่วยให้ลูกค้าสามารถเลือกซื้อสินค้าที่ต้องการได้อย่างสะดวก เพิ่มโอกาสในการซื้อได้มากขึ้น", jsonCode: FLEX_DATA.lotteryJson2, renderer: 'type2' },
+                { id: 3, title: "Lucky Numbers", type: "Carousel", color: "bg-purple-600", icon: "star", desc: "ดีไซน์ใหม่ 2025: 1 การ์ดรวมผลรางวัล 2 เจ้า จัดวางแบบ Stack พร้อม Gradient Background", jsonCode: FLEX_DATA.lotteryJson3, renderer: 'type3' },
+                { id: 5, title: "Buying Process", type: "Horizontal Timeline", color: "bg-orange-500", icon: "activity", desc: "Process Flow แนวนอน แสดงสถานะการสั่งซื้อพร้อมเส้น Progress ไล่เฉดสี", jsonCode: FLEX_DATA.lotteryJson5, renderer: 'type5' },
             ];
 
             return (
@@ -2189,10 +968,16 @@ const Type3CarouselRenderer = ({ json }) => {
                                             {item.renderer === 'type6' && <Type6PortraitCarouselRenderer json={item.jsonCode} />}
                                         </div>
                                     </div>
-                                    <div className="p-6 mt-auto">
-                                        <div className="flex justify-between items-start mb-3"><h3 className="text-xl font-bold text-slate-800 line-clamp-1">{item.title}</h3><span className="text-[10px] font-bold px-2 py-1 bg-slate-100 text-slate-500 rounded uppercase tracking-wide">{item.type}</span></div>
+                                    <div className="p-6 flex flex-col flex-1">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <h3 className="text-xl font-bold text-slate-800 line-clamp-1">{item.title}</h3>
+                                            <span className="text-[10px] font-bold px-2 py-1 bg-slate-100 text-slate-500 rounded uppercase tracking-wide">{item.type}</span>
+                                        </div>
                                         <p className="text-sm text-slate-500 leading-relaxed mb-4">{item.desc}</p>
-                                        <button onClick={() => setSelectedJson(item)} className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium text-sm hover:bg-slate-50 hover:border-red-600 hover:text-red-600 transition flex items-center justify-center"><Icon name="code" size={16} className="mr-2" /> ดูโค้ด JSON</button>
+                                        
+                                        <button onClick={() => setSelectedJson(item)} className="mt-auto w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium text-sm hover:bg-slate-50 hover:border-red-600 hover:text-red-600 transition flex items-center justify-center">
+                                            <Icon name="code" size={16} className="mr-2" /> ดูโค้ด JSON
+                                        </button>
                                     </div>
                                 </div>
                             ))}
