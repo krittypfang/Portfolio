@@ -475,7 +475,7 @@ const Type3CarouselRenderer = ({ json }) => {
                                     {/* Body */}
                                     {/* [UPDATED] ใช้ overflow-y-auto hide-scroll เพื่อให้เนื้อหาไม่ถูกตัดถ้ายาวเกิน 320px แต่ยังคงความสูง Card ไว้ */}
                                     {bubble.body && (
-                                        <div className="flex-1 w-full h-full relative overflow-y-auto hide-scroll">
+                                        <div className="flex-1 w-full h-full relative overflow-hidden space-y-2">
                                              {renderFlexComponent(bubble.body, 'body')}
                                         </div>
                                     )}
