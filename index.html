@@ -578,7 +578,7 @@
                                                     <img src={bgPatternUrl} className="absolute w-full h-full object-cover z-0" />
                                                     <div className="relative w-full h-full flex flex-col items-center" style={{top: '-10px'}}>
                                                         <img src={titleImgUrl} className="w-[85%] object-contain z-10 " />
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col text-center z-20" style={{top: '70px'}}>
+                                                        <div className="absolute flex flex-col text-center z-20" style={{top: '70px'}}>
                                                             <p className="text-[10px] font-bold text-white drop-shadow-md">ประจำงวดวันที่ 16 พฤศจิกายน 2568</p>
                                                         </div>
                                                         <img src={mascotUrl} className="absolute w-[60%] object-contain z-30 py-[80px]" style={{bottom: '-50px'}} />
@@ -1709,12 +1709,12 @@
 
 
             const flexItems = [
-                { id: 1, title: "Lottery Plus Campaign", type: "Video", desc: "การใช้วิดีโอรีวิวร่วมกับตะกร้าสินค้า ช่วยเพิ่มความน่าสนใจและทำให้ลูกค้าสามารถเข้าถึงการซื้อได้ทันที ลดขั้นตอนและเพิ่มโอกาสในการเกิด Conversion", jsonCode: FLEX_DATA.lotteryJson, popupJson: PopupLotteryJson, renderer: 'type1' },
-                { id: 4, title: "Register Steps", type: "Vertical Timeline", desc: "การนำเสนอวิดีโอพร้อมอธิบายขั้นตอนการใช้งาน ช่วยลดความซับซ้อนในการใช้งานสำหรับลูกค้าใหม่ ทำให้ลูกค้าเข้าใจฟังก์ชัน และตัดสินใจซื้อได้อย่างรวดเร็ว", jsonCode: FLEX_DATA.lotteryJson4, popupJson: PopupLotteryJson4, renderer: 'type4' },
-                { id: 6, title: "Winner Collection", type: "Portrait Carousel", desc: "รีวิวสินค้าในรูปแบบ Carousel ช่วยเพิ่มความน่าเชื่อถือของสินค้า และช่วยเสริมความมั่นใจในการตัดสินใจซื้อโดยไม่รู้สึกว่าถูกขายตรง", jsonCode: FLEX_DATA.lotteryJson6, popupJson: PopupLotteryJson6, renderer: 'type6' },
-                { id: 2, title: "Lottery Plus Carousel", type: "Carousel", desc: "การแนะนำสินค้าในรูปแบบ Carousel ช่วยให้ลูกค้าเข้าใจคุณค่าของสินค้าได้ภายในเวลาอันรวดเร็ว สามารถเปรียบเทียบและเลือกสินค้าได้อย่างรวดเร็ว", jsonCode: FLEX_DATA.lotteryJson2, popupJson: PopupLotteryJson2, renderer: 'type2' },
-                { id: 3, title: "Lucky Numbers", type: "Carousel", desc: "การนำเสนอสินค้ายอดนิยม ช่วยลดความลังเลในการตัดสินใจซื้อ และสะท้อนให้เห็นว่าสินค้าได้รับความนิยมจากผู้ใช้งานจริง มีโอกาสสูงที่จะตัดสินใจซื้อ", jsonCode: FLEX_DATA.lotteryJson3, popupJson: PopupLotteryJson3,renderer: 'type3' },
-                { id: 5, title: "Buying Process", type: "Horizontal Timeline", desc: "การนำเสนอวิดีโอควบคู่กับ Timeline ตั้งแต่การเห็นสินค้า การพิจารณา ไปจนถึงการซื้อ ช่วยให้ลูกค้าเข้าใจ และกระตุ้นให้ตัดสินใจซื้อได้เร็วขึ้นโดยไม่รู้สึกกดดัน", jsonCode: FLEX_DATA.lotteryJson5, popupJson: PopupLotteryJson5,renderer: 'type5' },
+                { id: 1, title: "Lottery Plus Campaign", type: "Video", desc: "เปลี่ยนผู้ชมให้เป็นผู้ซื้อ เล่าเรื่องราวสินค้าให้จบในคลิปเดียว พร้อมปุ่มสั่งซื้อที่รออยู่ข้างล่าง ช่วยปิดการขายได้ทันทีโดยที่ลูกค้าไม่ต้องสลับหน้าจอไปมา", jsonCode: FLEX_DATA.lotteryJson, popupJson: PopupLotteryJson, renderer: 'type1' },
+                { id: 4, title: "Register Steps", type: "Vertical Timeline", desc: "เพราะความงงคือศัตรูของการลงทะเบียน เปลี่ยนคู่มือยาวเหยียดให้เป็น Timeline ที่ดูง่าย นำทางลูกค้าทีละ Step เหมือนมีคนจับมือทำ", jsonCode: FLEX_DATA.lotteryJson4, popupJson: PopupLotteryJson4, renderer: 'type4' },
+                { id: 6, title: "Winner Collection", type: "Portrait Carousel", desc: "เสียงจริงจากผู้ใช้งาน นำเสนอ Collection สินค้าพร้อมรีวิวจากผู้ใช้งานจริง ช่วยยืนยันคุณภาพและทำให้ลูกค้าตัดสินใจซื้อได้ง่ายขึ้น", jsonCode: FLEX_DATA.lotteryJson6, popupJson: PopupLotteryJson6, renderer: 'type6' },
+                { id: 2, title: "Lottery Plus Carousel", type: "Carousel", desc: "ยกชั้นวางสินค้ามาไว้ในมือ จัดเรียงสินค้าแนะนำให้เลือกชมและเปรียบเทียบได้ง่ายๆ ช่วยเพิ่มโอกาสที่ลูกค้าจะเจอ 'ของที่ใช่' ได้เร็วยิ่งขึ้น", jsonCode: FLEX_DATA.lotteryJson2, popupJson: PopupLotteryJson2, renderer: 'type2' },
+                { id: 3, title: "Lucky Numbers", type: "Carousel", desc: "เพราะใครๆ ก็ชอบของฮิต ดีไซน์สำหรับโชว์สินค้าขายดีหรือรีวิวจากผู้ใช้จริง ช่วยสร้างความมั่นใจและลดความลังเลในการตัดสินใจซื้อได้อย่างอยู่หมัด", jsonCode: FLEX_DATA.lotteryJson3, popupJson: PopupLotteryJson3,renderer: 'type3' },
+                { id: 5, title: "Buying Process", type: "Horizontal Timeline", desc: "ให้ลูกค้าอุ่นใจในทุกขั้นตอน แสดงสถานะคำสั่งซื้อผ่านเส้น Timeline ที่ชัดเจนและเข้าใจง่าย ช่วยสร้างความเชื่อมั่นและลดการถามคำถามซ้ำๆ", jsonCode: FLEX_DATA.lotteryJson5, popupJson: PopupLotteryJson5,renderer: 'type5' },
             ];
 
             return (
@@ -1748,8 +1748,8 @@
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
                             {flexItems.map((item) => (
                                 <div key={item.id} className="bg-white rounded-2xl shadow-lg border border-slate-100 hover:shadow-lg  transition-all duration-200 flex flex-col h-full group">
-                                    <div className={`bg-slate-200 flex justify-center items-center border-b border-slate-100 ${[2, 3, 5].includes(item.id) ? 'h-[350px]' : 'h-[530px]'}`}>
-                                        <div className="w-full px-7 scale-95 group-hover:scale-98 transition-transform duration-500">
+                                    <div className={`bg-slate-200 rounded-t-2xl flex justify-center items-center border-b border-slate-100 ${[2, 3, 5].includes(item.id) ? 'h-[350px]' : 'h-[530px]'}`}>
+                                        <div className="w-full text-justify px-7 scale-95 group-hover:scale-98 transition-transform duration-500">
                                             {item.renderer === 'type1' && <LotteryFlexRenderer json={item.jsonCode} />}
                                             {item.renderer === 'type2' && <Type2CarouselRenderer json={item.jsonCode} />}
                                             {item.renderer === 'type3' && <Type3CarouselRenderer json={item.jsonCode} />}
@@ -1764,7 +1764,7 @@
                                             <span className="text-[10px] font-bold px-2 py-1 bg-slate-100 text-slate-500 rounded uppercase tracking-wide border border-slate-200 mt-0.5">{item.type}</span>
                                         </div>
                                         
-                                        <p className="text-sm text-slate-500 leading-normal mb-6 line-clamp-3">{item.desc}</p>
+                                        <p className="text-sm text-slate-500 leading-normal mb-6 line-clamp-3 ">{item.desc}</p>
                                         
                                         <div className="mt-auto flex justify-center"> 
                                             <button onClick={() => setSelectedJson(item)} className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium text-sm hover:bg-slate-50 hover:border-slate-300 transition flex items-center justify-center">
@@ -1790,19 +1790,19 @@
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">Data Platform</span>
                     </h1>
                     <p className="text-slate-500 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
-                        ระบบจัดการข้อมูลลูกค้า (CDP) และออกแบบ Flex Message อัจฉริยะ เชื่อมต่อ Database เพื่อการบรอดแคสต์ที่แม่นยำที่สุด
+                        ระบบจัดการข้อมูลลูกค้า (CDP) และออกแบบ Flex Message พร้อมเชื่อมต่อ Database เพื่อการต่อยอดบรอดแคสต์ที่แม่นยำที่สุด
                     </p>
                     <div className="grid md:grid-cols-2 gap-6 w-full max-w-3xl mx-auto">
                         <div onClick={() => setPage('flex')} className="group bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-red-100 hover:-translate-y-1 transition-all cursor-pointer text-left relative overflow-hidden">
                             <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 mb-6 relative z-10 group-hover:scale-110 transition-transform"><Icon name="smartphone" size={28} /></div>
                             <h3 className="text-2xl font-bold text-slate-800 mb-2 relative z-10">Flex Templates</h3>
-                            <p className="text-slate-500 relative z-10 text-sm">คลัง 6 รูปแบบข้อความ JSON ที่พร้อมใช้งาน</p>
+                            <p className="text-slate-500 relative z-10 text-sm">รวมดีไซน์ Flex Message ที่ไม่ได้มีแค่ความสวย แต่ถูกออกแบบมาเพื่อ "ปิดการขาย" และสร้างความประทับใจตั้งแต่แรกเห็น</p>
                             <div className="mt-6 flex items-center text-red-600 font-bold text-sm relative z-10 group-hover:translate-x-2 transition">Explore UI <Icon name="arrow-right" size={16} className="ml-2" /></div>
                         </div>
                         <div onClick={() => setPage('platform')} className="group bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-100 hover:-translate-y-1 transition-all cursor-pointer text-left relative overflow-hidden">
                             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-6 relative z-10 group-hover:scale-110 transition-transform"><Icon name="database" size={28} /></div>
                             <h3 className="text-2xl font-bold text-slate-800 mb-2 relative z-10">Data Architecture</h3>
-                            <p className="text-slate-500 relative z-10 text-sm">โครงสร้างระบบการไหลของข้อมูล (Databricks)</p>
+                            <p className="text-slate-500 relative z-10 text-sm">เจาะลึกโครงสร้าง Data Pipeline เบื้องหลังความแม่นยำ ตั้งแต่การเก็บข้อมูล จนถึงการส่งข้อความที่ Personalized เฉพาะบุคคล</p>
                             <div className="mt-6 flex items-center text-blue-600 font-bold text-sm relative z-10 group-hover:translate-x-2 transition">View System <Icon name="arrow-right" size={16} className="ml-2" /></div>
                         </div>
                     </div>
