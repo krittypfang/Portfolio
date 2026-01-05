@@ -1810,34 +1810,65 @@
             </div>
         );
 
-        const App = () => {
-            const [page, setPage] = useState('home');
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [pendingPage, setPendingPage] = useState(null); // Store page to redirect after login
-
-            useEffect(() => { window.scrollTo(0, 0); }, [page]);
-
-            // Function to handle navigation with Auth check
-            const handleNavigate = (targetPage) => {
-                const protectedPages = ['stats', 'performance'];
-                
-                if (protectedPages.includes(targetPage) && !isLoggedIn) {
-                    setPendingPage(targetPage); // Remember where user wanted to go
-                    setPage('login'); // Show Login screen
-                } else {
-                    setPage(targetPage);
-                }
+        
+        // --- 5. ROUTING HOOK (แบบ Query String ?) ---
+        // เปลี่ยนจากใช้ # มาใช้ ?page=... แทน เพื่อเลี่ยงปัญหา GitHub Pages
+        const useQueryRouter = () => {
+            const getPageFromQuery = () => {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('page') || 'home'; 
             };
+            
+            const [page, setPageState] = useState(getPageFromQuery());
+
+            useEffect(() => {
+                const handlePopState = () => {
+                    setPageState(getPageFromQuery());
+                    window.scrollTo(0, 0);
+                };
+                // ดักจับการกดปุ่ม Back/Forward
+                window.addEventListener('popstate', handlePopState);
+                return () => window.removeEventListener('popstate', handlePopState);
+            }, []);
+
+            const setPage = (newPage) => {
+                const url = new URL(window.location);
+                url.searchParams.set('page', newPage);
+                // เปลี่ยน URL โดยไม่โหลดหน้าใหม่
+                window.history.pushState({}, '', url);
+                setPageState(newPage);
+                window.scrollTo(0, 0);
+            };
+
+            return { page, setPage };
+        };
+
+
+        const App = () => {
+            // เปลี่ยนจาก useHashRouter เป็น useQueryRouter
+            const { page, setPage } = useQueryRouter(); 
+            
+            // ... (โค้ดส่วน isLoggedIn และอื่นๆ เหมือนเดิมไม่ต้องแก้) ...
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [pendingPage, setPendingPage] = useState(null);
+
+
+            useEffect(() => {
+                const protectedPages = ['stats', 'performance'];
+                if (protectedPages.includes(page) && !isLoggedIn) {
+                    setPendingPage(page);
+                    setPage('login');
+                }
+            }, [page, isLoggedIn]);
 
             const handleLoginSuccess = () => {
                 setIsLoggedIn(true);
-                // Redirect to pending page or home if none
                 setPage(pendingPage || 'home'); 
                 setPendingPage(null);
             };
 
             const handleCancelLogin = () => {
-                setPage(pendingPage === 'stats' ? 'flex' : 'platform'); // Go back to context
+                setPage('home'); 
                 setPendingPage(null);
             };
 
@@ -1847,23 +1878,25 @@
             };
 
             return (
-                <div className="antialiased selection:bg-red-100 selection:text-red-900">
-                    {/* Render Login Modal Over Everything if page is 'login' */}
+                <div className="antialiased selection:bg-red-100 selection:text-red-900 font-prompt">
+
                     {page === 'login' && (
                         <LoginPage onLogin={handleLoginSuccess} onCancel={handleCancelLogin} />
                     )}
 
-                    {/* Main App Content */}
-                    <Navbar setPage={handleNavigate} currentPage={page} isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+
+                    <Navbar setPage={setPage} currentPage={page} isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+                    
                     <main>
-                        {page === 'home' && <HomePage setPage={handleNavigate} />}
-                        {page === 'flex' && <FlexPage setPage={handleNavigate} />}
-                        {page === 'platform' && <PlatformPage setPage={handleNavigate} />}
+                        {page === 'home' && <HomePage setPage={setPage} />}
+                        {page === 'flex' && <FlexPage setPage={setPage} />}
+                        {page === 'platform' && <PlatformPage setPage={setPage} />}
                         
-                        {/* Protected Pages (Logic handled by handleNavigate, but double check doesn't hurt) */}
-                        {page === 'stats' && isLoggedIn && <StatsPage setPage={handleNavigate} />}
-                        {page === 'performance' && isLoggedIn && <PerformancePage setPage={handleNavigate} />}
+
+                        {page === 'stats' && isLoggedIn && <StatsPage setPage={setPage} />}
+                        {page === 'performance' && isLoggedIn && <PerformancePage setPage={setPage} />}
                     </main>
+                    
                     <footer className="bg-white border-t border-slate-200 text-slate-400 py-10 text-center text-sm">
                         <p className="font-medium">Broadcast Data Platform v1.2</p>
                         <p className="mt-2 text-xs">Internal Tool for CRM & Marketing Team</p>
