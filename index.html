@@ -1746,138 +1746,137 @@
                         </div>
                         
                         {/* --- INTRO SECTION: The Evolution of Broadcast --- */}
-<div className="mb-20 max-w-5xl mx-auto">
-    
-    {/* Part 1: Problem vs Solution */}
-    <div className="grid md:grid-cols-2 gap-10 items-stretch mb-12">
-        {/* Left: The Constraint (ปัญหาเดิม) */}
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden group hover:border-slate-300 transition-all">
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-                <Icon name="layout-template" size={120} className="text-slate-400" />
-            </div>
-            <div className="relative z-10">
-                <span className="inline-block py-1 px-3 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold tracking-wider mb-4 border border-slate-200">
-                    TRADITIONAL BROADCAST
-                </span>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                    เมื่อ "รูปแบบสำเร็จรูป" <br /> อาจไม่ตอบโจทย์ธุรกิจ
-                </h3>
-                <p className="text-slate-500 text-sm leading-relaxed mb-6">
-                    การบรอดแคสต์แบบเดิม (Rich / Card / Video Message) มอบประสบการณ์ที่สวยงาม แต่ติดอยู่ภายใต้ <strong>"กำแพงโครงสร้างที่ตายตัว"</strong>
-                </p>
-                
-                <ul className="space-y-3">
-                    {[
-                        "รูปแบบการจัดวางปรับเปลี่ยนได้น้อย (Fixed Layout)",
-                        "เนื้อหาแสดงเหมือนกันทุกกลุ่มลูกค้า (Static Content)",
-                        "ไม่สามารถปรับ Layout ให้เข้ากับสินค้าที่แตกต่างกัน",
-                        "พื้นที่จำกัด ใส่ข้อมูลซับซ้อนหลายชิ้นไม่ได้"
-                    ].map((text, i) => (
-                        <li key={i} className="flex items-start gap-3 text-sm text-slate-600">
-                            <div className="min-w-[20px] pt-0.5"><Icon name="x-circle" size={16} className="text-slate-300" /></div>
-                            <span>{text}</span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </div>
+                        <div className="mb-20 max-w-5xl mx-auto">
+                            
+                            {/* Part 1: Problem vs Solution */}
+                            <div className="grid md:grid-cols-2 gap-10 items-stretch mb-12">
+                                {/* Left: The Constraint (ปัญหาเดิม) */}
+                                <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden group hover:border-slate-300 transition-all">
+                                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                                        <Icon name="layout-template" size={120} className="text-slate-400" />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <span className="inline-block py-1 px-3 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold tracking-wider mb-4 border border-slate-200">
+                                            TRADITIONAL BROADCAST
+                                        </span>
+                                        <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                                            เมื่อ "รูปแบบสำเร็จรูป" <br /> อาจไม่ตอบโจทย์ธุรกิจ
+                                        </h3>
+                                        <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                                            การบรอดแคสต์แบบเดิม (Rich / Card / Video Message) มอบประสบการณ์ที่สวยงาม แต่ติดอยู่ภายใต้ <strong>"กำแพงโครงสร้างที่ตายตัว"</strong>
+                                        </p>
+                                        
+                                        <ul className="space-y-3">
+                                            {[
+                                                "รูปแบบการจัดวางปรับเปลี่ยนได้น้อย (Fixed Layout)",
+                                                "เนื้อหาแสดงเหมือนกันทุกกลุ่มลูกค้า (Static Content)",
+                                                "ไม่สามารถปรับ Layout ให้เข้ากับสินค้าที่แตกต่างกัน",
+                                                "พื้นที่จำกัด ใส่ข้อมูลซับซ้อนหลายชิ้นไม่ได้"
+                                            ].map((text, i) => (
+                                                <li key={i} className="flex items-start gap-3 text-sm text-slate-600">
+                                                    <div className="min-w-[20px] pt-0.5"><Icon name="x-circle" size={16} className="text-slate-300" /></div>
+                                                    <span>{text}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
 
-        {/* Right: The Solution (Flex Message) */}
-        <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-lg relative overflow-hidden text-white group">
-            <div className="absolute top-0 right-0 p-4 opacity-20">
-                <Icon name="layers" size={120} className="text-[#F24455]" />
-            </div>
-            <div className="relative z-10">
-                <span className="inline-block py-1 px-3 rounded-full bg-[#F24455]/20 text-[#F24455] text-[10px] font-bold tracking-wider mb-4 border border-[#F24455]/30">
-                    THE SOLUTION
-                </span>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                    Flex Message: <br />
-                    <span className="text-[#F24455]">ออกแบบประสบการณ์ได้ดั่งใจ</span>
-                </h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                    ทลายขีดจำกัดด้วยรูปแบบข้อความที่ให้คุณเป็น <strong>"สถาปนิก"</strong> ออกแบบโครงสร้าง Layout และ Content ได้เอง 100%
-                </p>
-                
-                <ul className="space-y-3">
-                    {[
-                        "ปรับโครงสร้างได้อิสระ ไม่ยึดติดกับ Template เดิม",
-                        "รองรับหลาย Section และผสมผสานข้อมูลได้หลายรูปแบบ",
-                        "แสดงผลข้อมูลที่ซับซ้อนได้ภายใน Message เดียว",
-                        "Design ให้เข้ากับบริบทของแคมเปญหรือสินค้าได้ทุกสไตล์"
-                    ].map((text, i) => (
-                        <li key={i} className="flex items-start gap-3 text-sm text-slate-300">
-                            <div className="min-w-[20px] pt-0.5"><Icon name="check-circle" size={16} className="text-[#F24455]" /></div>
-                            <span>{text}</span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </div>
-    </div>
+                                {/* Right: The Solution (Flex Message) */}
+                                <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-lg relative overflow-hidden text-white group">
+                                    <div className="absolute top-0 right-0 p-4 opacity-20">
+                                        <Icon name="layers" size={120} className="text-[#F24455]" />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <span className="inline-block py-1 px-3 rounded-full bg-[#F24455]/20 text-[#F24455] text-[10px] font-bold tracking-wider mb-4 border border-[#F24455]/30">
+                                            THE SOLUTION
+                                        </span>
+                                        <h3 className="text-2xl font-bold text-white mb-4">
+                                            Flex Message: <br />
+                                            <span className="text-[#F24455]">ออกแบบประสบการณ์ได้ดั่งใจ</span>
+                                        </h3>
+                                        <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                                            ทลายขีดจำกัดด้วยรูปแบบข้อความที่ให้คุณเป็น <strong>"สถาปนิก"</strong> ออกแบบโครงสร้าง Layout และ Content ได้เอง 100%
+                                        </p>
+                                        
+                                        <ul className="space-y-3">
+                                            {[
+                                                "ปรับโครงสร้างได้อิสระ ไม่ยึดติดกับ Template เดิม",
+                                                "รองรับหลาย Section และผสมผสานข้อมูลได้หลายรูปแบบ",
+                                                "แสดงผลข้อมูลที่ซับซ้อนได้ภายใน Message เดียว",
+                                                "Design ให้เข้ากับบริบทของแคมเปญหรือสินค้าได้ทุกสไตล์"
+                                            ].map((text, i) => (
+                                                <li key={i} className="flex items-start gap-3 text-sm text-slate-300">
+                                                    <div className="min-w-[20px] pt-0.5"><Icon name="check-circle" size={16} className="text-[#F24455]" /></div>
+                                                    <span>{text}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
 
-    {/* Part 2: Comparison Table */}
-    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-12">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-            <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                <Icon name="columns" size={18} className="text-slate-400" /> 
-                ตารางเปรียบเทียบ: Template vs Flexible
-            </h4>
-        </div>
-        <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
-                    <tr>
-                        <th className="p-4 pl-6 w-1/3">Message Type</th>
-                        <th className="p-4 w-1/3">ความยืดหยุ่น (Flexibility)</th>
-                        <th className="p-4 w-1/3">การปรับ Layout</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                    <tr className="hover:bg-slate-50/50 transition">
-                        <td className="p-4 pl-6 font-medium text-slate-700">Rich Message</td>
-                        <td className="p-4 text-slate-500"><span className="px-2 py-1 bg-slate-100 rounded text-xs font-bold">ต่ำ</span></td>
-                        <td className="p-4 text-slate-500">โครงสร้างตายตัว (Fixed Templates)</td>
-                    </tr>
-                    <tr className="hover:bg-slate-50/50 transition">
-                        <td className="p-4 pl-6 font-medium text-slate-700">Card Message</td>
-                        <td className="p-4 text-slate-500"><span className="px-2 py-1 bg-yellow-50 text-yellow-700 border border-yellow-100 rounded text-xs font-bold">ปานกลาง</span></td>
-                        <td className="p-4 text-slate-500">จำกัดตามรูปแบบการ์ด</td>
-                    </tr>
-                    <tr className="hover:bg-slate-50/50 transition">
-                        <td className="p-4 pl-6 font-medium text-slate-700">Video Message</td>
-                        <td className="p-4 text-slate-500"><span className="px-2 py-1 bg-slate-100 rounded text-xs font-bold">ต่ำ</span></td>
-                        <td className="p-4 text-slate-500">เน้นสื่อเดียว ปรับแต่งไม่ได้</td>
-                    </tr>
-                    <tr className="bg-[#F24455]/5 hover:bg-[#F24455]/10 transition">
-                        <td className="p-4 pl-6 font-bold text-[#F24455] flex items-center gap-2">
-                            <Icon name="star" size={14} className="fill-[#F24455]" /> Flex Message
-                        </td>
-                        <td className="p-4"><span className="px-2 py-1 bg-[#F24455] text-white rounded text-xs font-bold">สูงมาก</span></td>
-                        <td className="p-4 font-medium text-slate-800">ออกแบบโครงสร้างได้เองอิสระ 100%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+                            {/* Part 2: Comparison Table */}
+                            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-12">
+                                <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                                    <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                                        <Icon name="columns" size={18} className="text-slate-400" /> 
+                                        ตารางเปรียบเทียบ: Template vs Flexible
+                                    </h4>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm text-left">
+                                        <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
+                                            <tr>
+                                                <th className="p-4 pl-6 w-1/3">Message Type</th>
+                                                <th className="p-4 w-1/3">ความยืดหยุ่น (Flexibility)</th>
+                                                <th className="p-4 w-1/3">การปรับ Layout</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            <tr className="hover:bg-slate-50/50 transition">
+                                                <td className="p-4 pl-6 font-medium text-slate-700">Rich Message</td>
+                                                <td className="p-4 text-slate-500"><span className="px-2 py-1 bg-slate-100 rounded text-xs font-bold">ต่ำ</span></td>
+                                                <td className="p-4 text-slate-500">โครงสร้างตายตัว (Fixed Templates)</td>
+                                            </tr>
+                                            <tr className="hover:bg-slate-50/50 transition">
+                                                <td className="p-4 pl-6 font-medium text-slate-700">Card Message</td>
+                                                <td className="p-4 text-slate-500"><span className="px-2 py-1 bg-yellow-50 text-yellow-700 border border-yellow-100 rounded text-xs font-bold">ปานกลาง</span></td>
+                                                <td className="p-4 text-slate-500">จำกัดตามรูปแบบการ์ด</td>
+                                            </tr>
+                                            <tr className="hover:bg-slate-50/50 transition">
+                                                <td className="p-4 pl-6 font-medium text-slate-700">Video Message</td>
+                                                <td className="p-4 text-slate-500"><span className="px-2 py-1 bg-slate-100 rounded text-xs font-bold">ต่ำ</span></td>
+                                                <td className="p-4 text-slate-500">เน้นสื่อเดียว ปรับแต่งไม่ได้</td>
+                                            </tr>
+                                            <tr className="bg-[#F24455]/5 hover:bg-[#F24455]/10 transition">
+                                                <td className="p-4 pl-6 font-bold text-[#F24455] flex items-center gap-2">
+                                                    <Icon name="star" size={14} className="fill-[#F24455]" /> Flex Message
+                                                </td>
+                                                <td className="p-4"><span className="px-2 py-1 bg-[#F24455] text-white rounded text-xs font-bold">สูงมาก</span></td>
+                                                <td className="p-4 font-medium text-slate-800">ออกแบบโครงสร้างได้เองอิสระ 100%</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
 
-    {/* Part 3: Key Message & Transition */}
-    <div className="text-center max-w-3xl mx-auto">
-        <div className="mb-6">
-            <Icon name="quote" size={32} className="text-slate-300 mx-auto mb-4" />
-            <h3 className="text-xl md:text-2xl font-bold text-slate-800 leading-relaxed">
-                "Flex Message ไม่ใช่แค่ข้อความที่สวยกว่า... <br />
-                แต่คือ <span className="text-[#F24455] underline decoration-2 underline-offset-4">โครงสร้างการสื่อสาร</span> ที่เราออกแบบให้ตรงกับเป้าหมายได้"
-            </h3>
-        </div>
-        <p className="text-slate-500 text-sm">
-            โปรเจกต์นี้จึงเริ่มต้นจากการนำ Flex Message มาใช้เพื่อสร้างรูปแบบข้อความที่ยืดหยุ่น <br className="hidden md:block" />
-            และรองรับการใช้งานที่หลากหลาย ดังตัวอย่างต่อไปนี้
-        </p>
-        <div className="w-px h-12 bg-gradient-to-b from-slate-200 to-transparent mx-auto mt-8"></div>
-    </div>
+                            {/* Part 3: Key Message & Transition */}
+                            <div className="text-center max-w-3xl mx-auto">
+                                <div className="mb-6">
+                                    <Icon name="quote" size={32} className="text-slate-300 mx-auto mb-4" />
+                                    <h3 className="text-xl md:text-2xl font-bold text-slate-800 leading-relaxed">
+                                        Flex Message ไม่ใช่แค่ข้อความที่สวยกว่า <br />
+                                        แต่คือ <span className="text-[#F24455] underline decoration-2 underline-offset-4">โครงสร้างการสื่อสาร</span> ที่เราออกแบบให้ตรงกับเป้าหมายได้
+                                    </h3>
+                                </div>
+                                <p className="text-slate-500 text-sm">
+                                    โปรเจกต์นี้จึงเริ่มต้นจากการนำ Flex Message มาใช้เพื่อสร้างรูปแบบข้อความที่ยืดหยุ่น <br className="hidden md:block" />
+                                    และรองรับการใช้งานที่หลากหลาย ดังตัวอย่างต่อไปนี้
+                                </p>
+                            </div>
 
-</div>
+                        </div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
                             {flexItems.map((item) => (
                                 <div key={item.id} className="bg-white rounded-2xl shadow-lg border border-slate-100 hover:shadow-lg  transition-all duration-200 flex flex-col h-full group">
@@ -1943,9 +1942,6 @@
             </div>
         );
 
-        
-        // --- 5. ROUTING HOOK (เพิ่มใหม่) ---
-        // ใช้ ?page=... แทน state ธรรมดา เพื่อให้แชร์ลิงก์ได้และ Refresh ไม่หาย
         const useQueryRouter = () => {
             const getPageFromQuery = () => {
                 const params = new URLSearchParams(window.location.search);
@@ -1976,17 +1972,12 @@
 
 
         const App = () => {
-            // --- แก้ไขจุดนี้ (ลบ useState เดิมออก แล้วใช้บรรทัดนี้แทน) ---
-            const { page, setPage } = useQueryRouter(); 
-            // -----------------------------------------------------
 
+            const { page, setPage } = useQueryRouter(); 
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             const [pendingPage, setPendingPage] = useState(null);
 
-            // ... (โค้ดส่วนล่างตั้งแต่ useEffect เป็นต้นไป ปล่อยไว้เหมือนเดิมไม่ต้องแก้) ...
-
             useEffect(() => {  }, [page]);
-
 
             useEffect(() => {window.scrollTo(0, 0);
                 const protectedPages = ['stats', 'performance'];
