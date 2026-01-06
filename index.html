@@ -1878,7 +1878,6 @@
     </div>
 
 </div>
-
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
                             {flexItems.map((item) => (
                                 <div key={item.id} className="bg-white rounded-2xl shadow-lg border border-slate-100 hover:shadow-lg  transition-all duration-200 flex flex-col h-full group">
@@ -1945,28 +1944,37 @@
         );
 
         
+        // --- 5. ROUTING HOOK (แบบ Query String ?) ---
+        // เปลี่ยนจากใช้ # มาใช้ ?page=... แทน เพื่อให้รองรับ GitHub Pages สมบูรณ์แบบ
         const useQueryRouter = () => {
+            // ฟังก์ชันอ่านค่าจาก URL (เช่น ?page=flex)
             const getPageFromQuery = () => {
                 const params = new URLSearchParams(window.location.search);
-                return params.get('page') || 'home'; 
+                return params.get('page') || 'home'; // ถ้าไม่มี ?page ให้เป็น home
             };
             
             const [page, setPageState] = useState(getPageFromQuery());
 
             useEffect(() => {
+                // ฟังก์ชันทำงานเมื่อกดปุ่ม Back/Forward ของ Browser
                 const handlePopState = () => {
                     setPageState(getPageFromQuery());
                     window.scrollTo(0, 0);
                 };
-
+                
                 window.addEventListener('popstate', handlePopState);
                 return () => window.removeEventListener('popstate', handlePopState);
             }, []);
 
+            // ฟังก์ชันสั่งเปลี่ยนหน้า
             const setPage = (newPage) => {
                 const url = new URL(window.location);
-
+                url.searchParams.set('page', newPage); // ตั้งค่า ?page=...
+                
+                // เปลี่ยน URL โดยไม่โหลดหน้าใหม่
                 window.history.pushState({}, '', url);
+                
+                // สั่ง React ให้เปลี่ยนหน้าจอ
                 setPageState(newPage);
                 window.scrollTo(0, 0);
             };
@@ -1976,15 +1984,17 @@
 
 
         const App = () => {
-
+            // เปลี่ยนมาใช้ useQueryRouter
             const { page, setPage } = useQueryRouter(); 
             
-
+            // ... (โค้ดส่วน isLoggedIn และอื่นๆ เหมือนเดิม ไม่ต้องแก้) ...
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             const [pendingPage, setPendingPage] = useState(null);
 
+            useEffect(() => {  }, [page]);
 
-            useEffect(() => {
+
+            useEffect(() => {window.scrollTo(0, 0);
                 const protectedPages = ['stats', 'performance'];
                 if (protectedPages.includes(page) && !isLoggedIn) {
                     setPendingPage(page);
