@@ -1944,37 +1944,29 @@
         );
 
         
-        // --- 5. ROUTING HOOK (แบบ Query String ?) ---
-        // เปลี่ยนจากใช้ # มาใช้ ?page=... แทน เพื่อให้รองรับ GitHub Pages สมบูรณ์แบบ
+        // --- 5. ROUTING HOOK (เพิ่มใหม่) ---
+        // ใช้ ?page=... แทน state ธรรมดา เพื่อให้แชร์ลิงก์ได้และ Refresh ไม่หาย
         const useQueryRouter = () => {
-            // ฟังก์ชันอ่านค่าจาก URL (เช่น ?page=flex)
             const getPageFromQuery = () => {
                 const params = new URLSearchParams(window.location.search);
-                return params.get('page') || 'home'; // ถ้าไม่มี ?page ให้เป็น home
+                return params.get('page') || 'home';
             };
             
             const [page, setPageState] = useState(getPageFromQuery());
 
             useEffect(() => {
-                // ฟังก์ชันทำงานเมื่อกดปุ่ม Back/Forward ของ Browser
                 const handlePopState = () => {
                     setPageState(getPageFromQuery());
                     window.scrollTo(0, 0);
                 };
-                
                 window.addEventListener('popstate', handlePopState);
                 return () => window.removeEventListener('popstate', handlePopState);
             }, []);
 
-            // ฟังก์ชันสั่งเปลี่ยนหน้า
             const setPage = (newPage) => {
                 const url = new URL(window.location);
-                url.searchParams.set('page', newPage); // ตั้งค่า ?page=...
-                
-                // เปลี่ยน URL โดยไม่โหลดหน้าใหม่
+                url.searchParams.set('page', newPage);
                 window.history.pushState({}, '', url);
-                
-                // สั่ง React ให้เปลี่ยนหน้าจอ
                 setPageState(newPage);
                 window.scrollTo(0, 0);
             };
@@ -1984,12 +1976,14 @@
 
 
         const App = () => {
-            // เปลี่ยนมาใช้ useQueryRouter
+            // --- แก้ไขจุดนี้ (ลบ useState เดิมออก แล้วใช้บรรทัดนี้แทน) ---
             const { page, setPage } = useQueryRouter(); 
-            
-            // ... (โค้ดส่วน isLoggedIn และอื่นๆ เหมือนเดิม ไม่ต้องแก้) ...
+            // -----------------------------------------------------
+
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             const [pendingPage, setPendingPage] = useState(null);
+
+            // ... (โค้ดส่วนล่างตั้งแต่ useEffect เป็นต้นไป ปล่อยไว้เหมือนเดิมไม่ต้องแก้) ...
 
             useEffect(() => {  }, [page]);
 
